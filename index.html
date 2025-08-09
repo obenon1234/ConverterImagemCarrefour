@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OCR de Números - Cole ou Envie sua Imagem</title>
+    <title>Ferramentas Carrefour: OCR e Limpador de Código de Barras</title>
     <style>
         * {
             margin: 0;
@@ -13,151 +13,172 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-color: #0050A4; /* Azul do Carrefour */
             min-height: 100vh;
-            display: flex; /* Usar flexbox para centralizar */
-            justify-content: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
             align-items: center;
             padding: 20px;
             color: white;
         }
 
-        .container {
+        .tab-container {
             max-width: 1200px;
-            width: 100%; /* Ocupar largura total disponível */
-            background: rgba(255, 255, 255, 0.1);
+            width: 100%;
+            background: #FFFFFF;
             backdrop-filter: blur(10px);
             border-radius: 20px;
             padding: 30px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            color: #333333;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tab-buttons {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 10px;
+            flex-wrap: wrap; /* Permite quebrar em várias linhas em telas pequenas */
+        }
+
+        .tab-button {
+            background: #D0D0D0; /* Cinza claro para abas inativas */
+            color: #333333;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .tab-button:hover {
+            background: #C0C0C0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .tab-button.active {
+            background: linear-gradient(45deg, #ED1C24, #C00000); /* Vermelho do Carrefour */
+            color: white;
+            box-shadow: 0 4px 15px rgba(237, 28, 36, 0.4);
+        }
+
+        .tab-content {
+            display: none; /* Conteúdo da aba oculto por padrão */
+        }
+
+        .tab-content.active {
+            display: block; /* Conteúdo da aba ativa visível */
         }
 
         h1 {
             text-align: center;
             margin-bottom: 30px;
             font-size: 2.5rem;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            color: #333333;
         }
 
-        .paste-area {
-            border: 3px dashed rgba(255, 255, 255, 0.5);
+        /* Estilos para o OCR e Limpador de Código de Barras (similaridade) */
+        .paste-area, .barcode-input-section { /* Renomeado para evitar conflito com input-area */
+            background: #E0E0E0;
+            border: 3px dashed rgba(0, 0, 0, 0.4);
             border-radius: 15px;
-            padding: 40px 20px; /* Reduzido o padding para melhor visual em mobile */
+            padding: 40px 20px;
             text-align: center;
             margin-bottom: 30px;
             transition: all 0.3s ease;
             cursor: pointer;
-            background: rgba(255, 255, 255, 0.05);
+            color: #333333;
         }
 
-        .paste-area:hover {
-            border-color: rgba(255, 255, 255, 0.8);
-            background: rgba(255, 255, 255, 0.1);
+        .paste-area:hover, .barcode-input-section:hover {
+            border-color: rgba(0, 0, 0, 0.6);
+            background: #D0D0D0;
             transform: translateY(-2px);
         }
 
-        .paste-area.dragover {
-            border-color: #4CAF50;
-            background: rgba(76, 175, 80, 0.2);
-        }
-
         .paste-icon {
-            font-size: 3rem; /* Reduzido o tamanho do ícone */
+            font-size: 3rem;
             margin-bottom: 15px;
             opacity: 0.7;
+            color: #333333;
         }
 
         .paste-text {
-            font-size: 1.1rem; /* Ajustado o tamanho da fonte */
+            font-size: 1.1rem;
             margin-bottom: 8px;
         }
 
         .paste-hint {
             opacity: 0.8;
-            font-size: 0.8rem; /* Ajustado o tamanho da fonte */
-            margin-bottom: 15px; /* Espaço entre o hint e o botão */
+            font-size: 0.8rem;
+            margin-bottom: 15px;
         }
 
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 30px 20px; /* Ajustado padding */
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            margin-bottom: 30px;
-        }
-
-        .spinner {
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top: 3px solid white;
-            width: 35px; /* Ajustado tamanho */
-            height: 35px; /* Ajustado tamanho */
-            animation: spin 1s linear infinite;
-            margin: 0 auto 10px; /* Ajustado margem */
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .upload-btn {
-            background: linear-gradient(45deg, #2196F3, #21CBF3);
+        .upload-btn, .barcode-clean-btn {
+            background: linear-gradient(45deg, #ED1C24, #C00000);
             color: white;
             border: none;
-            padding: 10px 20px; /* Ajustado padding */
+            padding: 10px 20px;
             border-radius: 25px;
             cursor: pointer;
-            font-size: 0.9rem; /* Ajustado tamanho da fonte */
-            margin-top: 15px; /* Espaço para o hint */
+            font-size: 0.9rem;
+            margin-top: 15px;
             transition: all 0.3s ease;
         }
 
-        .upload-btn:hover {
+        .upload-btn:hover, .barcode-clean-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);
+            box-shadow: 0 4px 15px rgba(237, 28, 36, 0.4);
         }
 
         .ocr-btn {
-            background: linear-gradient(45deg, #FF9800, #F57C00);
+            background: linear-gradient(45deg, #ED1C24, #C00000);
             color: white;
             border: none;
             padding: 12px 24px;
             border-radius: 25px;
             cursor: pointer;
             font-size: 1rem;
-            margin: 20px 0; /* Aumentado a margem para o botão OCR */
+            margin: 20px 0;
             transition: all 0.3s ease;
             width: 100%;
         }
 
         .ocr-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(255, 152, 0, 0.4);
+            box-shadow: 0 4px 15px rgba(237, 28, 36, 0.4);
         }
 
-        .ocr-btn:disabled {
+        .ocr-btn:disabled, .barcode-clean-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
             transform: none;
         }
 
-        .content-area {
+        .content-area { /* OCR content area */
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 30px;
             margin-top: 30px;
         }
 
-        .image-preview, .text-output {
-            background: rgba(255, 255, 255, 0.1);
+        .image-preview, .text-output, .barcode-output { /* Reutiliza estilos */
+            background: #E0E0E0;
             border-radius: 15px;
             padding: 20px;
-            min-height: 400px;
-            display: flex; /* Usar flexbox para layout interno */
+            min-height: 300px; /* Ajustado para caber no contexto de abas */
+            display: flex;
             flex-direction: column;
+            color: #333333;
         }
 
         .section-title {
@@ -166,48 +187,50 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            color: #333333;
         }
 
         .preview-img {
             max-width: 100%;
-            max-height: 350px;
+            max-height: 250px; /* Ajustado para caber no contexto de abas */
             border-radius: 10px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             object-fit: contain;
-            margin-bottom: 15px; /* Espaço abaixo da imagem */
-            flex-grow: 1; /* Permite que a imagem ocupe o espaço disponível */
+            margin-bottom: 15px;
+            flex-grow: 1;
         }
 
-        .text-result {
-            background: rgba(0, 0, 0, 0.2);
+        .text-result, .barcode-result-text { /* Estilos para texto de saída */
+            background: #CCCCCC;
             border-radius: 10px;
             padding: 15px;
-            min-height: 300px;
+            min-height: 150px; /* Ajustado para caber no contexto de abas */
             font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             line-height: 1.5;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            white-space: nowrap;
+            overflow-x: auto;
             overflow-y: auto;
-            flex-grow: 1; /* Permite que o texto ocupe o espaço disponível */
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            flex-grow: 1;
+            color: #333333;
         }
 
         .copy-btn {
-            background: linear-gradient(45deg, #4CAF50, #45a049);
+            background: linear-gradient(45deg, #ED1C24, #C00000);
             color: white;
             border: none;
-            padding: 8px 15px; /* Ajustado padding */
-            border-radius: 20px; /* Ajustado border-radius */
+            padding: 8px 15px;
+            border-radius: 20px;
             cursor: pointer;
-            font-size: 0.8rem; /* Ajustado tamanho da fonte */
+            font-size: 0.8rem;
             transition: all 0.3s ease;
-            margin-left: auto; /* Alinha à direita */
+            margin-left: auto;
         }
 
         .copy-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+            box-shadow: 0 4px 15px rgba(237, 28, 36, 0.4);
         }
 
         .copy-btn:disabled {
@@ -220,12 +243,12 @@
             display: none;
         }
 
-        .language-selector {
+        .language-selector { /* Este seletor foi ocultado no OCR, mas mantido caso queira reativar */
             margin: 15px 0;
-            display: flex;
+            display: none; 
             gap: 10px;
             flex-wrap: wrap;
-            justify-content: center; /* Centraliza os botões de idioma */
+            justify-content: center;
         }
 
         .lang-btn {
@@ -248,9 +271,121 @@
             border-color: #FF9800;
         }
 
+        /* Estilos para a área de input do limpador de código de barras */
+        .barcode-input-section textarea {
+            width: 100%;
+            min-height: 120px; /* Altura razoável para colar códigos */
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            resize: vertical;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            margin-top: 15px; /* Espaço entre o hint e o textarea */
+        }
+
+        /* Mensagens de estado */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 30px 20px;
+            background: #E0E0E0;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            color: #333333;
+        }
+
+        .spinner {
+            border: 3px solid rgba(0, 0, 0, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid #333333;
+            width: 35px;
+            height: 35px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            color: rgba(51, 51, 51, 0.6);
+            font-style: italic;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .error-state {
+            color: #D32F2F;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .success-state {
+            color: #388E3C;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .warning-state {
+            color: #FBC02D;
+            margin-bottom: 15px;
+        }
+
+        .usage-info {
+            background: rgba(76, 175, 80, 0.1);
+            border-left: 4px solid #4CAF50;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            color: #333333;
+        }
+
+        .character-count-info {
+            font-size: 0.85rem;
+            margin-top: 10px;
+            opacity: 0.8;
+            color: rgba(51, 51, 51, 0.7);
+            text-align: right;
+        }
+
+        /* Estilos do rodapé */
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            color: white;
+            font-size: 0.75rem;
+            padding: 10px 20px;
+            background-color: #0050A4;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .footer-left, .footer-center, .footer-right {
+            flex: 1;
+            min-width: 150px;
+            text-align: center;
+        }
+
+        .footer-left {
+            text-align: left;
+        }
+
+        .footer-right {
+            text-align: right;
+        }
+
+        /* Media Queries para Responsividade */
         @media (max-width: 768px) {
             .content-area {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr; /* Coluna única em telas menores para OCR */
                 gap: 20px;
             }
             
@@ -258,213 +393,220 @@
                 font-size: 2rem;
             }
             
-            .container {
+            .tab-container {
                 padding: 20px;
             }
-        }
-
-        .empty-state {
-            color: rgba(255, 255, 255, 0.6);
-            font-style: italic;
-            text-align: center;
-            padding: 50px 20px;
-        }
-
-        .error-state {
-            color: #ff6b6b;
-            text-align: center;
-            padding: 20px;
-        }
-
-        .success-state {
-            color: #4CAF50;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-
-        .warning-state {
-            color: #FFA726;
-            margin-bottom: 15px;
-        }
-
-        .usage-info {
-            background: rgba(76, 175, 80, 0.2);
-            border-left: 4px solid #4CAF50;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            font-size: 0.8rem;
-        }
-
-        .character-count-info {
-            font-size: 0.85rem;
-            margin-top: 10px;
-            opacity: 0.8;
-            color: rgba(255, 255, 255, 0.7); /* Slightly brighter for visibility */
-            text-align: right; /* Align to the right for a subtle look */
+            .footer {
+                flex-direction: column;
+                align-items: center;
+            }
+            .footer-left, .footer-center, .footer-right {
+                text-align: center;
+                width: 100%;
+                margin: 0;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🔍 OCR - Extração de Números</h1>
-        
-        <div class="api-config" style="display: none;">
-            <strong>💡 OCR Offline:</strong> Este app usa Tesseract.js para reconhecimento de texto diretamente no seu navegador.
-            <br><strong>✅ Funciona sem internet</strong> • <strong>🔒 Seus dados ficam privados</strong> • <strong>⚡ Processamento local</strong>
-        </div>
-        
-        <div class="paste-area" id="pasteArea">
-            <div class="paste-icon">📋</div>
-            <div class="paste-text">Cole sua imagem aqui com Ctrl+V</div>
-            <div class="paste-hint">Ou arraste e solte uma imagem • Códigos de barras, documentos, screenshots</div>
-            <input type="file" class="file-input" id="fileInput" accept="image/*">
-            <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
-                📁 Selecionar Arquivo
-            </button>
+    <div class="tab-container">
+        <div class="tab-buttons">
+            <button class="tab-button active" onclick="openTab('ocrTab')">🔍 OCR de Números</button>
+            <button class="tab-button" onclick="openTab('barcodeTab')">🧹 Limpador de Código de Barras</button>
         </div>
 
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <div id="loadingText">Inicializando OCR...</div>
-        </div>
-
-        <div class="content-area" id="contentArea" style="display: none;">
-            <div class="image-preview">
-                <div class="section-title">
-                    🖼️ Imagem Original
-                </div>
-                <!-- A seção de seleção de idioma será ocultada -->
-                <div class="language-selector" style="display: none;">
-                    <div style="font-size: 0.9rem; margin-bottom: 5px;">Idioma:</div>
-                    <button class="lang-btn active" data-lang="eng">🇺🇸 Números (Inglês)</button> <!-- Default para números -->
-                    <button class="lang-btn" data-lang="por">🇧🇷 Português (Texto Geral)</button>
-                    <button class="lang-btn" data-lang="spa">🇪🇸 Espanhol (Texto Geral)</button>
-                    <button class="lang-btn" data-lang="fre">🇫🇷 Francês (Texto Geral)</button>
-                </div>
-                <img id="previewImage" class="preview-img" alt="Preview da imagem">
-                
-                <button class="ocr-btn" id="ocrBtn" onclick="performOCR()">
-                    🔍 Extrair Texto
+        <!-- Conteúdo da Aba OCR de Números -->
+        <div id="ocrTab" class="tab-content active">
+            <h1>🔍 Carrefour - Extração de Números</h1>
+            
+            <div class="api-config" style="display: none;">
+                <strong>💡 OCR Offline:</strong> Este app usa Tesseract.js para reconhecimento de texto diretamente no seu navegador.
+                <br><strong>✅ Funciona sem internet</strong> • <strong>🔒 Seus dados ficam privados</strong> • <strong>⚡ Processamento local</strong>
+            </div>
+            
+            <div class="paste-area" id="ocrPasteArea">
+                <div class="paste-icon">📋</div>
+                <div class="paste-text">Cole sua imagem aqui com Ctrl+V</div>
+                <div class="paste-hint">Ou arraste e solte uma imagem • Códigos de barras, documentos, screenshots</div>
+                <input type="file" class="file-input" id="ocrFileInput" accept="image/*">
+                <button class="upload-btn" onclick="document.getElementById('ocrFileInput').click()">
+                    📁 Selecionar Arquivo
                 </button>
-                
-                <div class="usage-info" id="usageInfo" style="display: none;">
-                    <strong>📊 Uso:</strong> <span id="usageText"></span>
-                </div>
             </div>
 
-            <div class="text-output">
-                <div class="section-title">
-                    📝 Texto Extraído
-                    <button class="copy-btn" id="copyBtn" onclick="copyText()" disabled>📋 Copiar</button>
+            <div class="loading" id="ocrLoading">
+                <div class="spinner"></div>
+                <div id="ocrLoadingText">Inicializando OCR...</div>
+            </div>
+
+            <div class="content-area" id="ocrContentArea" style="display: none;">
+                <div class="image-preview">
+                    <div class="section-title">
+                        🖼️ Imagem Original
+                    </div>
+                    <div class="language-selector">
+                        <div style="font-size: 0.9rem; margin-bottom: 5px;">Idioma:</div>
+                        <button class="lang-btn active" data-lang="eng">🇺🇸 Números (Inglês)</button>
+                        <button class="lang-btn" data-lang="por">🇧🇷 Português (Texto Geral)</button>
+                        <button class="lang-btn" data-lang="spa">�🇸 Espanhol (Texto Geral)</button>
+                        <button class="lang-btn" data-lang="fre">🇫🇷 Francês (Texto Geral)</button>
+                    </div>
+                    <img id="previewImage" class="preview-img" alt="Preview da imagem">
+                    
+                    <button class="ocr-btn" id="ocrProcessBtn" onclick="performOCR()">
+                        🔍 Extrair Texto
+                    </button>
+                    
+                    <div class="usage-info" id="ocrUsageInfo" style="display: none;">
+                        <strong>📊 Uso:</strong> <span id="ocrUsageText"></span>
+                    </div>
                 </div>
-                
-                <div class="text-result" id="textResult">
-                    <div class="empty-state">Cole ou envie uma imagem e clique em "Extrair Texto".</div>
+
+                <div class="text-output">
+                    <div class="section-title">
+                        📝 Texto Extraído
+                        <button class="copy-btn" id="copyOcrBtn" onclick="copyOcrText()" disabled>📋 Copiar</button>
+                    </div>
+                    
+                    <div class="text-result" id="ocrTextResult">
+                        <div class="empty-state">Cole ou envie uma imagem e clique em "Extrair Texto".</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conteúdo da Aba Limpador de Código de Barras -->
+        <div id="barcodeTab" class="tab-content">
+            <h1>🧹 Limpador de Código de Barras</h1>
+            <div class="barcode-input-section">
+                <div class="paste-icon">📄</div>
+                <div class="paste-text">Cole seu código de barras aqui</div>
+                <textarea id="barcodeInput" placeholder="Ex: 1234.567-890 123,45"></textarea>
+                <button class="barcode-clean-btn" id="cleanBarcodeBtn" onclick="cleanBarcode()">
+                    ✨ Limpar Código
+                </button>
+            </div>
+            <div class="barcode-output">
+                <div class="section-title">
+                    🔢 Código Limpo
+                    <button class="copy-btn" id="copyBarcodeBtn" onclick="copyBarcode()" disabled>📋 Copiar</button>
+                </div>
+                <div class="barcode-result-text" id="cleanedBarcodeResult">
+                    <div class="empty-state">O código de barras limpo aparecerá aqui.</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Tesseract.js CDN (versão 4.1.4, conforme o seu código original) -->
+    <footer class="footer">
+        <div class="footer-left">© 2025 - Ferramenta interna do Carrefour</div>
+        <div class="footer-center">CSC - Transformar informação em solução</div>
+        <div class="footer-right">Criador: Luiz Fraga</div> 
+    </footer>
+
+    <!-- Tesseract.js CDN (versão 4.1.4) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/4.1.4/tesseract.min.js"></script>
     <script>
-        // Referências aos elementos DOM
-        const pasteArea = document.getElementById('pasteArea');
-        const loading = document.getElementById('loading');
-        const loadingText = document.getElementById('loadingText');
-        const contentArea = document.getElementById('contentArea');
+        // --- Funções do Sistema de Abas ---
+        function openTab(tabId) {
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => content.classList.remove('active'));
+
+            const tabButtons = document.querySelectorAll('.tab-button');
+            tabButtons.forEach(button => button.classList.remove('active'));
+
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        // --- Variáveis e Referências do DOM para OCR ---
+        const ocrPasteArea = document.getElementById('ocrPasteArea');
+        const ocrLoading = document.getElementById('ocrLoading');
+        const ocrLoadingText = document.getElementById('ocrLoadingText');
+        const ocrContentArea = document.getElementById('ocrContentArea');
         const previewImage = document.getElementById('previewImage');
-        const textResult = document.getElementById('textResult');
-        const fileInput = document.getElementById('fileInput');
-        const copyBtn = document.getElementById('copyBtn');
-        const ocrBtn = document.getElementById('ocrBtn');
-        const usageInfo = document.getElementById('usageInfo');
-        const usageText = document.getElementById('usageText');
+        const ocrTextResult = document.getElementById('ocrTextResult');
+        const ocrFileInput = document.getElementById('ocrFileInput');
+        const copyOcrBtn = document.getElementById('copyOcrBtn');
+        const ocrProcessBtn = document.getElementById('ocrProcessBtn');
+        const ocrUsageInfo = document.getElementById('ocrUsageInfo');
+        const ocrUsageText = document.getElementById('ocrUsageText');
         
         let currentImageFile = null;
-        let currentLanguage = 'eng'; // Alterado o default para 'eng' (Números)
+        let currentLanguage = 'eng'; 
         let ocrWorker = null;
-        let isWorkerInitializing = false; // Flag para controlar a inicialização do worker
+        let isWorkerInitializing = false; 
 
-        // Mapeamento de idiomas para Tesseract.js
-        const languageMap = {
-            'por': 'por',
-            'eng': 'eng', // Usamos 'eng' para números pois é o mais otimizado para dígitos
-            'spa': 'spa',
-            'fre': 'fra'
-        };
+        // --- Variáveis e Referências do DOM para Limpador de Código de Barras ---
+        const barcodeInput = document.getElementById('barcodeInput');
+        const cleanBarcodeBtn = document.getElementById('cleanBarcodeBtn');
+        const cleanedBarcodeResult = document.getElementById('cleanedBarcodeResult');
+        const copyBarcodeBtn = document.getElementById('copyBarcodeBtn');
 
-        // Eventos
-        document.addEventListener('paste', handlePaste);
-        pasteArea.addEventListener('dragover', handleDragOver);
-        pasteArea.addEventListener('drop', handleDrop);
-        pasteArea.addEventListener('dragleave', handleDragLeave);
-        fileInput.addEventListener('change', handleFileSelect);
-        // Não precisamos do click na pasteArea para abrir o fileInput se o botão já faz isso
-        // pasteArea.addEventListener('click', () => fileInput.click()); 
+        // --- Event Listeners para OCR ---
+        ocrPasteArea.addEventListener('paste', handleOcrPaste);
+        ocrPasteArea.addEventListener('dragover', handleOcrDragOver);
+        ocrPasteArea.addEventListener('drop', handleOcrDrop);
+        ocrPasteArea.addEventListener('dragleave', handleOcrDragLeave);
+        ocrFileInput.addEventListener('change', handleOcrFileSelect);
 
-        // Seletor de idiomas (Este bloco de código pode ser removido ou mantido, mas não terá efeito visível)
-        document.querySelectorAll('.lang-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                currentLanguage = this.dataset.lang;
-            });
+        // --- Event Listeners para Limpador de Código de Barras ---
+        barcodeInput.addEventListener('input', () => {
+            const hasText = barcodeInput.value.trim().length > 0;
+            cleanBarcodeBtn.disabled = !hasText;
+            copyBarcodeBtn.disabled = !hasText; 
+            if (!hasText) {
+                 cleanedBarcodeResult.innerHTML = '<div class="empty-state">O código de barras limpo aparecerá aqui.</div>';
+            }
         });
+        cleanBarcodeBtn.disabled = true; 
+        copyBarcodeBtn.disabled = true;
 
-        // Handler de colagem
-        function handlePaste(e) {
+        // --- Funções do OCR (mantidas e adaptadas para IDs únicos) ---
+        function handleOcrPaste(e) {
             e.preventDefault();
             const items = e.clipboardData.items;
-            
             for (let i = 0; i < items.length; i++) {
                 if (items[i].type.indexOf('image') !== -1) {
                     const file = items[i].getAsFile();
-                    processImage(file);
+                    processOcrImage(file);
                     break;
                 }
             }
         }
 
-        // Handlers de arrastar e soltar
-        function handleDragOver(e) {
+        function handleOcrDragOver(e) {
             e.preventDefault();
-            pasteArea.classList.add('dragover');
+            ocrPasteArea.classList.add('dragover');
         }
 
-        function handleDrop(e) {
+        function handleOcrDrop(e) {
             e.preventDefault();
-            pasteArea.classList.remove('dragover');
-            
+            ocrPasteArea.classList.remove('dragover');
             const files = e.dataTransfer.files;
             if (files.length > 0 && files[0].type.startsWith('image/')) {
-                processImage(files[0]);
+                processOcrImage(files[0]);
             }
         }
 
-        function handleDragLeave(e) {
+        function handleOcrDragLeave(e) {
             e.preventDefault();
-            pasteArea.classList.remove('dragover');
+            ocrPasteArea.classList.remove('dragover');
         }
 
-        // Handler de seleção de arquivo
-        function handleFileSelect(e) {
+        function handleOcrFileSelect(e) {
             const file = e.target.files[0];
             if (file && file.type.startsWith('image/')) {
-                processImage(file);
+                processOcrImage(file);
             }
         }
 
-        // Processa a imagem (pré-visualização e armazena para OCR)
-        function processImage(file) {
-            // Verificar tamanho do arquivo (limite mais generoso para Tesseract)
+        function processOcrImage(file) {
             if (file.size > 5 * 1024 * 1024) { // 5MB
-                textResult.innerHTML = '<div class="error-state">⚠️ Arquivo muito grande! Máximo 5MB.<br>Compacte a imagem e tente novamente.</div>';
-                contentArea.style.display = 'grid'; // Mostrar área de conteúdo para a mensagem de erro
-                ocrBtn.disabled = true;
-                copyBtn.disabled = true;
-                usageInfo.style.display = 'none';
+                ocrTextResult.innerHTML = '<div class="error-state">⚠️ Arquivo muito grande! Máximo 5MB.<br>Compacte a imagem e tente novamente.</div>';
+                ocrProcessBtn.disabled = true;
+                copyOcrBtn.disabled = true;
+                ocrUsageInfo.style.display = 'none';
                 return;
             }
 
@@ -472,232 +614,235 @@
             reader.onload = function(e) {
                 previewImage.src = e.target.result;
                 currentImageFile = file;
-                contentArea.style.display = 'grid'; // Exibir a área de conteúdo
+                ocrContentArea.style.display = 'grid'; // Exibir a área de conteúdo
                 
-                // Limpar resultado anterior
-                textResult.innerHTML = '<div class="empty-state">Clique em "Extrair Texto" para processar 👆</div>';
-                copyBtn.disabled = true;
-                ocrBtn.disabled = false; // Habilitar o botão OCR após carregar a imagem
-                usageInfo.style.display = 'none';
+                ocrTextResult.innerHTML = '<div class="empty-state">Clique em "Extrair Texto" para processar 👆</div>';
+                copyOcrBtn.disabled = true;
+                ocrProcessBtn.disabled = false;
+                ocrUsageInfo.style.display = 'none';
             };
             reader.readAsDataURL(file);
         }
 
-        // Função auxiliar para obter nome do idioma (para mensagens na UI)
         function getLanguageName(code) {
-            const names = {
-                'por': 'Português',
-                'eng': 'Inglês (apenas Números)', // Renomeado para clareza
-                'spa': 'Espanhol',
-                'fre': 'Francês'
-            };
+            const names = { 'por': 'por', 'eng': 'eng', 'spa': 'spa', 'fre': 'fra' };
             return names[code] || 'desconhecido';
         }
 
-        // Função para mostrar o estado de carregamento
-        function showLoading(message = 'Inicializando OCR...') {
-            loading.style.display = 'block';
-            loadingText.textContent = message;
-            ocrBtn.disabled = true;
-            copyBtn.disabled = true;
-            contentArea.style.display = 'grid'; // Manter a área de conteúdo visível
-            textResult.innerHTML = '<div class="empty-state">Aguarde...</div>'; // Limpa e mostra mensagem de espera
+        function showOcrLoading(message = 'Inicializando OCR...') {
+            ocrLoading.style.display = 'block';
+            ocrLoadingText.textContent = message;
+            ocrProcessBtn.disabled = true;
+            copyOcrBtn.disabled = true;
+            ocrTextResult.innerHTML = '<div class="empty-state">Aguarde...</div>';
         }
 
-        // Função para esconder o estado de carregamento
-        function hideLoading() {
-            loading.style.display = 'none';
+        function hideOcrLoading() {
+            ocrLoading.style.display = 'none';
         }
 
-        // Função principal para realizar o OCR
         async function performOCR() {
             if (!currentImageFile) {
-                textResult.innerHTML = '<div class="error-state">❌ Nenhuma imagem carregada para processar.</div>';
+                ocrTextResult.innerHTML = '<div class="error-state">❌ Nenhuma imagem carregada para processar.</div>';
                 return;
             }
-
-            // Garante que o Tesseract.js esteja carregado
             if (typeof Tesseract === 'undefined') {
-                textResult.innerHTML = '<div class="error-state">❌ Tesseract.js não foi carregado. Recarregue a página ou verifique sua conexão com a internet.</div>';
+                ocrTextResult.innerHTML = '<div class="error-state">❌ Tesseract.js não foi carregado. Recarregue a página ou verifique sua conexão com a internet.</div>';
                 return;
             }
 
-            showLoading('Iniciando processo OCR...');
-            ocrBtn.disabled = true;
+            showOcrLoading('Iniciando processo OCR...');
+            ocrProcessBtn.disabled = true;
 
             try {
-                // Inicializar worker do Tesseract se necessário
                 if (!ocrWorker) {
                     isWorkerInitializing = true;
-                    loadingText.textContent = 'Carregando engine OCR (primeira vez pode demorar)...';
+                    ocrLoadingText.textContent = 'Carregando engine OCR (primeira vez pode demorar)...';
                     ocrWorker = await Tesseract.createWorker({
-                        // Logger para progresso: Esta função será chamada pelo worker
-                        // e usará 'postMessage' para se comunicar com o thread principal.
                         logger: m => {
-                            // Esta função executa no Web Worker, NÃO no thread principal.
-                            // Para atualizar a UI, precisamos enviar uma mensagem de volta.
                             if (m.status === 'loading tesseract core') {
-                                loadingText.textContent = 'Carregando núcleo do Tesseract...';
+                                ocrLoadingText.textContent = 'Carregando núcleo do Tesseract...';
                             } else if (m.status === 'loading language traineddata') {
-                                loadingText.textContent = `Carregando dados de idioma (${getLanguageName(currentLanguage)})...`;
+                                ocrLoadingText.textContent = `Carregando dados de idioma (${currentLanguage})...`; 
                             } else if (m.status === 'recognizing text') {
                                 const progress = Math.round(m.progress * 100);
-                                loadingText.textContent = `Extraindo texto... ${progress}%`;
+                                ocrLoadingText.textContent = `Extraindo texto... ${progress}%`;
                             } else if (m.status === 'initialized') {
-                                loadingText.textContent = 'Engine OCR pronta!';
+                                ocrLoadingText.textContent = 'Engine OCR pronta!';
                             }
-                            // Nenhuma manipulação direta do DOM aqui!
                         }
                     });
                     isWorkerInitializing = false;
                 }
 
-                // Como a seleção de idioma foi ocultada, fixamos o idioma para 'eng' (números)
-                // para garantir que a funcionalidade principal continue a extrair apenas números.
                 const tesseractLang = 'eng'; 
-                
-                loadingText.textContent = `Carregando modelo de ${getLanguageName(tesseractLang)}...`;
+                ocrLoadingText.textContent = `Carregando modelo de ${tesseractLang}...`;
                 await ocrWorker.loadLanguage(tesseractLang);
                 await ocrWorker.initialize(tesseractLang);
 
-                // Configurar parâmetros para extrair APENAS DÍGITOS
                 const ocrParams = {
-                    tessedit_ocr_engine_mode: Tesseract.OEM.TESSERACT_LSTM_COMBINED,
-                    tessedit_pageseg_mode: Tesseract.PSM.SINGLE_BLOCK, // Útil para blocos de texto
-                    tessedit_char_whitelist: '0123456789' // Whitelist fixa para números
+                    tessedit_ocr_engine_mode: Tesseract.OEM.LSTM_ONLY,
+                    tessedit_pageseg_mode: Tesseract.PSM.SINGLE_LINE,
+                    tessedit_char_whitelist: '0123456789'
                 };
-                
                 await ocrWorker.setParameters(ocrParams);
 
-                loadingText.textContent = 'Analisando imagem e extraindo texto...';
-                
+                ocrLoadingText.textContent = 'Analisando imagem e extraindo texto...';
                 const startTime = Date.now();
-                
-                // Realizar OCR
-                const { data: { text, confidence } } = await ocrWorker.recognize(currentImageFile); // Logger já configurado
-
+                const { data: { text, confidence } } = await ocrWorker.recognize(currentImageFile);
                 const endTime = Date.now();
                 const processingTime = endTime - startTime;
                 
-                hideLoading();
-                ocrBtn.disabled = false;
+                hideOcrLoading();
+                ocrProcessBtn.disabled = false;
 
-                if (text && text.trim()) {
-                    let cleanText = text.trim();
-                    // Garante que só haja dígitos e espaços, pois estamos no modo "números"
-                    cleanText = cleanText.replace(/[^0-9\s]/g, '').replace(/\s+/g, ' ').trim();
+                if (text) {
+                    let cleanText = text.replace(/[^0-9]/g, '');
+                    const incorrectPattern = '2063';
+                    const correctPattern = '2963';
+                    if (cleanText.includes(incorrectPattern)) {
+                        cleanText = cleanText.replaceAll(incorrectPattern, correctPattern);
+                        console.warn(`Correção heurística aplicada: todas as ocorrências de '${incorrectPattern}' alteradas para '${correctPattern}'.`);
+                    }
                     
-
                     const confidencePercent = Math.round(confidence);
-                    const charCount = cleanText.length; // Calcula o número de caracteres
-
-                    let resultHtml = '<div class="success-state">✅ Texto extraído com sucesso!</div>';
+                    const charCount = cleanText.length;
                     
+                    let resultHtml = '<div class="success-state">✅ Texto extraído com sucesso!</div>';
                     if (confidencePercent < 70) {
                         resultHtml += '<div class="warning-state">⚠️ Confiança baixa - verifique o resultado</div>';
                     }
-                    
                     resultHtml += cleanText;
-                    // Adiciona a contagem de caracteres logo abaixo do texto extraído
                     resultHtml += `<div class="character-count-info">Caracteres: ${charCount}</div>`;
                     
-                    textResult.innerHTML = resultHtml;
-                    copyBtn.disabled = false;
+                    ocrTextResult.innerHTML = resultHtml;
+                    copyOcrBtn.disabled = false;
                     
-                    // Mostrar estatísticas
-                    usageInfo.style.display = 'block';
-                    usageText.innerHTML = `Processado em ${(processingTime/1000).toFixed(1)}s • Confiança: ${confidencePercent}%`;
+                    ocrUsageInfo.style.display = 'block';
+                    ocrUsageText.innerHTML = `Processado em ${(processingTime/1000).toFixed(1)}s • Confiança: ${confidencePercent}%`;
                     
                 } else {
-                    textResult.innerHTML = '<div class="warning-state">⚠️ Nenhum texto encontrado na imagem</div><br>Tente com:<br>• Imagem com melhor qualidade<br>• Maior contraste entre texto e fundo<br>• Texto mais nítido<br>• Rotacionar a imagem se necessário';
+                    ocrTextResult.innerHTML = '<div class="warning-state">⚠️ Nenhum texto encontrado na imagem</div><br>Tente com:<br>• Imagem com melhor qualidade<br>• Maior contraste entre texto e fundo<br>• Texto mais nítido<br>• Rotacionar a imagem se necessário';
                 }
 
             } catch (error) {
-                hideLoading();
-                ocrBtn.disabled = false;
-                
+                hideOcrLoading();
+                ocrProcessBtn.disabled = false;
                 console.error('Erro no OCR:', error);
-                
                 let errorMessage = '❌ Erro no processamento OCR';
-                
                 if (error.message?.includes('language')) {
                     errorMessage += '\n\n• Erro ao carregar modelo de idioma\n• Tente novamente ou escolha outro idioma';
                 } else if (error.message?.includes('worker') || error.message?.includes('terminated')) {
                     errorMessage += '\n\n• Reinicializando engine OCR...<br>• Tente novamente';
-                    ocrWorker = null; // Força a recriação do worker
+                    ocrWorker = null;
                 } else {
                     errorMessage += '\n\n' + error.message;
                 }
-                
-                textResult.innerHTML = `<div class="error-state">${errorMessage}</div>`;
+                ocrTextResult.innerHTML = `<div class="error-state">${errorMessage}</div>`;
             } finally {
-                // Certifica-se de que o input de arquivo esteja limpo para permitir
-                // a seleção do mesmo arquivo novamente se necessário.
-                fileInput.value = '';
+                ocrFileInput.value = '';
             }
         }
 
-        // Função para copiar texto
-        function copyText() {
-            const text = textResult.textContent;
-            // Limpa mensagens de status para copiar apenas o texto puro
-            const cleanText = text.replace(/✅.*?\n/, '').replace(/⚠️.*?\n/, '').trim();
+        function copyOcrText() {
+            const text = ocrTextResult.textContent;
+            const cleanText = text.replace(/✅.*?\n/, '').replace(/⚠️.*?\n/, '').replace(/Caracteres: \d+/, '');
             
             if (cleanText && cleanText.length > 0) {
-                // Verifica se navigator.clipboard está disponível (mais moderno)
                 if (navigator.clipboard && navigator.clipboard.writeText) {
                     navigator.clipboard.writeText(cleanText).then(() => {
-                        showCopyFeedback();
+                        showCopyFeedback(copyOcrBtn);
                     }).catch(err => {
                         console.error('Falha ao copiar (Clipboard API):', err);
-                        fallbackCopyTextToClipboard(cleanText); // Tenta método alternativo
+                        fallbackCopyTextToClipboard(cleanText, copyOcrBtn);
                     });
                 } else {
-                    fallbackCopyTextToClipboard(cleanText); // Usa método alternativo para navegadores antigos
+                    fallbackCopyTextToClipboard(cleanText, copyOcrBtn);
                 }
             } else {
-                textResult.innerHTML = '<div class="warning-state">Nenhum texto para copiar!</div>';
+                ocrTextResult.innerHTML = '<div class="warning-state">Nenhum texto para copiar!</div>';
             }
         }
 
-        // Função de fallback para copiar texto (para ambientes sem navigator.clipboard)
-        function fallbackCopyTextToClipboard(text) {
+        // --- Funções do Limpador de Código de Barras ---
+        function cleanBarcode() {
+            const rawBarcode = barcodeInput.value;
+            const cleaned = rawBarcode.replace(/[ \-.,]/g, ''); 
+            
+            if (cleaned.length > 0) {
+                cleanedBarcodeResult.innerHTML = `<div class="success-state">✅ Código limpo com sucesso!</div>${cleaned}`;
+                copyBarcodeBtn.disabled = false;
+            } else {
+                cleanedBarcodeResult.innerHTML = '<div class="warning-state">⚠️ Nenhum número válido encontrado.</div>';
+                copyBarcodeBtn.disabled = true;
+            }
+        }
+
+        function copyBarcode() {
+            const text = cleanedBarcodeResult.textContent;
+            const cleanText = text.replace(/✅ Código limpo com sucesso!/, '').trim();
+            
+            if (cleanText && cleanText.length > 0) {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(cleanText).then(() => {
+                        showCopyFeedback(copyBarcodeBtn);
+                    }).catch(err => {
+                        console.error('Falha ao copiar (Clipboard API):', err);
+                        fallbackCopyTextToClipboard(cleanText, copyBarcodeBtn);
+                    });
+                } else {
+                    fallbackCopyTextToClipboard(cleanText, copyBarcodeBtn);
+                }
+            } else {
+                cleanedBarcodeResult.innerHTML = '<div class="warning-state">Nenhum texto para copiar!</div>';
+            }
+        }
+
+        // --- Funções de Utilitário Compartilhadas ---
+        function showCopyFeedback(buttonElement) {
+            const originalText = buttonElement.textContent;
+            buttonElement.textContent = '✅ Copiado!';
+            buttonElement.style.background = 'linear-gradient(45deg, #4CAF50, #2E7D32)'; /* Verde para feedback de cópia */
+            
+            setTimeout(() => {
+                buttonElement.textContent = originalText;
+                buttonElement.style.background = 'linear-gradient(45deg, #ED1C24, #C00000)'; /* Retorna ao vermelho original */
+            }, 2000);
+        }
+
+        function fallbackCopyTextToClipboard(text, buttonElement) {
             const textArea = document.createElement("textarea");
             textArea.value = text;
-            textArea.style.position = "fixed";  // Evita rolagem
-            textArea.style.opacity = "0";      // Esconde
-            textArea.style.pointerEvents = "none"; // Não interagir
+            textArea.style.position = "fixed";
+            textArea.style.opacity = "0";
+            textArea.style.pointerEvents = "none";
             document.body.appendChild(textArea);
             textArea.focus();
             textArea.select();
             try {
                 const successful = document.execCommand('copy');
                 if (successful) {
-                    showCopyFeedback();
+                    showCopyFeedback(buttonElement);
                 } else {
                     console.error('Falha ao copiar (execCommand)');
-                    textResult.innerHTML = '<div class="error-state">Erro ao copiar texto. Por favor, copie manualmente.</div>';
+                    if (buttonElement.id === 'copyOcrBtn') {
+                        ocrTextResult.innerHTML = '<div class="error-state">Erro ao copiar texto. Por favor, copie manualmente.</div>';
+                    } else if (buttonElement.id === 'copyBarcodeBtn') {
+                        cleanedBarcodeResult.innerHTML = '<div class="error-state">Erro ao copiar texto. Por favor, copie manualmente.</div>';
+                    }
                 }
             } catch (err) {
                 console.error('Falha ao copiar (execCommand):', err);
-                textResult.innerHTML = '<div class="error-state">Erro ao copiar texto. Por favor, copie manualmente.</div>';
+                if (buttonElement.id === 'copyOcrBtn') {
+                    ocrTextResult.innerHTML = '<div class="error-state">Erro ao copiar texto. Por favor, copie manualmente.</div>';
+                } else if (buttonElement.id === 'copyBarcodeBtn') {
+                    cleanedBarcodeResult.innerHTML = '<div class="error-state">Erro ao copiar texto. Por favor, copie manualmente.</div>';
+                }
             }
             document.body.removeChild(textArea);
         }
 
-        // Feedback visual de cópia
-        function showCopyFeedback() {
-            const originalText = copyBtn.textContent;
-            copyBtn.textContent = '✅ Copiado!';
-            copyBtn.style.background = 'linear-gradient(45deg, #4CAF50, #66BB6A)';
-            
-            setTimeout(() => {
-                copyBtn.textContent = originalText;
-                copyBtn.style.background = 'linear-gradient(45deg, #4CAF50, #45a049)';
-            }, 2000);
-        }
-
-        // Limpar worker quando a página for fechada
+        // Limpar worker Tesseract quando a página for fechada
         window.addEventListener('beforeunload', async function() {
             if (ocrWorker) {
                 try {
