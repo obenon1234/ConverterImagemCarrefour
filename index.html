@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCR de Números - Cole ou Envie sua Imagem</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex; /* Usar flexbox para centralizar */
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%; /* Ocupar largura total disponível */
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .paste-area {
+            border: 3px dashed rgba(255, 255, 255, 0.5);
+            border-radius: 15px;
+            padding: 40px 20px; /* Reduzido o padding para melhor visual em mobile */
+            text-align: center;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .paste-area:hover {
+            border-color: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .paste-area.dragover {
+            border-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.2);
+        }
+
+        .paste-icon {
+            font-size: 3rem; /* Reduzido o tamanho do ícone */
+            margin-bottom: 15px;
+            opacity: 0.7;
+        }
+
+        .paste-text {
+            font-size: 1.1rem; /* Ajustado o tamanho da fonte */
+            margin-bottom: 8px;
+        }
+
+        .paste-hint {
+            opacity: 0.8;
+            font-size: 0.8rem; /* Ajustado o tamanho da fonte */
+            margin-bottom: 15px; /* Espaço entre o hint e o botão */
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 30px 20px; /* Ajustado padding */
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid white;
+            width: 35px; /* Ajustado tamanho */
+            height: 35px; /* Ajustado tamanho */
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px; /* Ajustado margem */
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .upload-btn {
+            background: linear-gradient(45deg, #2196F3, #21CBF3);
+            color: white;
+            border: none;
+            padding: 10px 20px; /* Ajustado padding */
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9rem; /* Ajustado tamanho da fonte */
+            margin-top: 15px; /* Espaço para o hint */
+            transition: all 0.3s ease;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);
+        }
+
+        .ocr-btn {
+            background: linear-gradient(45deg, #FF9800, #F57C00);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 20px 0; /* Aumentado a margem para o botão OCR */
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .ocr-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 152, 0, 0.4);
+        }
+
+        .ocr-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .content-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .image-preview, .text-output {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            min-height: 400px;
+            display: flex; /* Usar flexbox para layout interno */
+            flex-direction: column;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .preview-img {
+            max-width: 100%;
+            max-height: 350px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            object-fit: contain;
+            margin-bottom: 15px; /* Espaço abaixo da imagem */
+            flex-grow: 1; /* Permite que a imagem ocupe o espaço disponível */
+        }
+
+        .text-result {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            min-height: 300px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow-y: auto;
+            flex-grow: 1; /* Permite que o texto ocupe o espaço disponível */
+        }
+
+        .copy-btn {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 8px 15px; /* Ajustado padding */
+            border-radius: 20px; /* Ajustado border-radius */
+            cursor: pointer;
+            font-size: 0.8rem; /* Ajustado tamanho da fonte */
+            transition: all 0.3s ease;
+            margin-left: auto; /* Alinha à direita */
+        }
+
+        .copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .copy-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .language-selector {
+            margin: 15px 0;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center; /* Centraliza os botões de idioma */
+        }
+
+        .lang-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 6px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .lang-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .lang-btn.active {
+            background: linear-gradient(45deg, #FF9800, #F57C00);
+            border-color: #FF9800;
+        }
+
+        @media (max-width: 768px) {
+            .content-area {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+        }
+
+        .empty-state {
+            color: rgba(255, 255, 255, 0.6);
+            font-style: italic;
+            text-align: center;
+            padding: 50px 20px;
+        }
+
+        .error-state {
+            color: #ff6b6b;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .success-state {
+            color: #4CAF50;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .warning-state {
+            color: #FFA726;
+            margin-bottom: 15px;
+        }
+
+        .usage-info {
+            background: rgba(76, 175, 80, 0.2);
+            border-left: 4px solid #4CAF50;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-size: 0.8rem;
+        }
+
+        .character-count-info {
+            font-size: 0.85rem;
+            margin-top: 10px;
+            opacity: 0.8;
+            color: rgba(255, 255, 255, 0.7); /* Slightly brighter for visibility */
+            text-align: right; /* Align to the right for a subtle look */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 OCR - Extração de Números</h1>
+        
+        <div class="api-config" style="display: none;">
+            <strong>💡 OCR Offline:</strong> Este app usa Tesseract.js para reconhecimento de texto diretamente no seu navegador.
+            <br><strong>✅ Funciona sem internet</strong> • <strong>🔒 Seus dados ficam privados</strong> • <strong>⚡ Processamento local</strong>
+        </div>
+        
+        <div class="paste-area" id="pasteArea">
+            <div class="paste-icon">📋</div>
+            <div class="paste-text">Cole sua imagem aqui com Ctrl+V</div>
+            <div class="paste-hint">Ou arraste e solte uma imagem • Códigos de barras, documentos, screenshots</div>
+            <input type="file" class="file-input" id="fileInput" accept="image/*">
+            <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                📁 Selecionar Arquivo
+            </button>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <div id="loadingText">Inicializando OCR...</div>
+        </div>
+
+        <div class="content-area" id="contentArea" style="display: none;">
+            <div class="image-preview">
+                <div class="section-title">
+                    🖼️ Imagem Original
+                </div>
+                <!-- A seção de seleção de idioma será ocultada -->
+                <div class="language-selector" style="display: none;">
+                    <div style="font-size: 0.9rem; margin-bottom: 5px;">Idioma:</div>
+                    <button class="lang-btn active" data-lang="eng">🇺🇸 Números (Inglês)</button> <!-- Default para números -->
+                    <button class="lang-btn" data-lang="por">🇧🇷 Português (Texto Geral)</button>
+                    <button class="lang-btn" data-lang="spa">🇪🇸 Espanhol (Texto Geral)</button>
+                    <button class="lang-btn" data-lang="fre">🇫🇷 Francês (Texto Geral)</button>
+                </div>
+                <img id="previewImage" class="preview-img" alt="Preview da imagem">
+                
+                <button class="ocr-btn" id="ocrBtn" onclick="performOCR()">
+                    🔍 Extrair Texto
+                </button>
+                
+                <div class="usage-info" id="usageInfo" style="display: none;">
+                    <strong>📊 Uso:</strong> <span id="usageText"></span>
+                </div>
+            </div>
+
+            <div class="text-output">
+                <div class="section-title">
+                    📝 Texto Extraído
+                    <button class="copy-btn" id="copyBtn" onclick="copyText()" disabled>📋 Copiar</button>
+                </div>
+                
+                <div class="text-result" id="textResult">
+                    <div class="empty-state">Cole ou envie uma imagem e clique em "Extrair Texto".</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tesseract.js CDN (versão 4.1.4, conforme o seu código original) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/4.1.4/tesseract.min.js"></script>
+    <script>
+        // Referências aos elementos DOM
+        const pasteArea = document.getElementById('pasteArea');
+        const loading = document.getElementById('loading');
+        const loadingText = document.getElementById('loadingText');
+        const contentArea = document.getElementById('contentArea');
+        const previewImage = document.getElementById('previewImage');
+        const textResult = document.getElementById('textResult');
+        const fileInput = document.getElementById('fileInput');
+        const copyBtn = document.getElementById('copyBtn');
+        const ocrBtn = document.getElementById('ocrBtn');
+        const usageInfo = document.getElementById('usageInfo');
+        const usageText = document.getElementById('usageText');
+        
+        let currentImageFile = null;
+        let currentLanguage = 'eng'; // Alterado o default para 'eng' (Números)
+        let ocrWorker = null;
+        let isWorkerInitializing = false; // Flag para controlar a inicialização do worker
+
+        // Mapeamento de idiomas para Tesseract.js
+        const languageMap = {
+            'por': 'por',
+            'eng': 'eng', // Usamos 'eng' para números pois é o mais otimizado para dígitos
+            'spa': 'spa',
+            'fre': 'fra'
+        };
+
+        // Eventos
+        document.addEventListener('paste', handlePaste);
+        pasteArea.addEventListener('dragover', handleDragOver);
+        pasteArea.addEventListener('drop', handleDrop);
+        pasteArea.addEventListener('dragleave', handleDragLeave);
+        fileInput.addEventListener('change', handleFileSelect);
+        // Não precisamos do click na pasteArea para abrir o fileInput se o botão já faz isso
+        // pasteArea.addEventListener('click', () => fileInput.click()); 
+
+        // Seletor de idiomas (Este bloco de código pode ser removido ou mantido, mas não terá efeito visível)
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentLanguage = this.dataset.lang;
+            });
+        });
+
+        // Handler de colagem
+        function handlePaste(e) {
+            e.preventDefault();
+            const items = e.clipboardData.items;
+            
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf('image') !== -1) {
+                    const file = items[i].getAsFile();
+                    processImage(file);
+                    break;
+                }
+            }
+        }
+
+        // Handlers de arrastar e soltar
+        function handleDragOver(e) {
+            e.preventDefault();
+            pasteArea.classList.add('dragover');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            pasteArea.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].type.startsWith('image/')) {
+                processImage(files[0]);
+            }
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            pasteArea.classList.remove('dragover');
+        }
+
+        // Handler de seleção de arquivo
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                processImage(file);
+            }
+        }
+
+        // Processa a imagem (pré-visualização e armazena para OCR)
+        function processImage(file) {
+            // Verificar tamanho do arquivo (limite mais generoso para Tesseract)
+            if (file.size > 5 * 1024 * 1024) { // 5MB
+                textResult.innerHTML = '<div class="error-state">⚠️ Arquivo muito grande! Máximo 5MB.<br>Compacte a imagem e tente novamente.</div>';
+                contentArea.style.display = 'grid'; // Mostrar área de conteúdo para a mensagem de erro
+                ocrBtn.disabled = true;
+                copyBtn.disabled = true;
+                usageInfo.style.display = 'none';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImage.src = e.target.result;
+                currentImageFile = file;
+                contentArea.style.display = 'grid'; // Exibir a área de conteúdo
+                
+                // Limpar resultado anterior
+                textResult.innerHTML = '<div class="empty-state">Clique em "Extrair Texto" para processar 👆</div>';
+                copyBtn.disabled = true;
+                ocrBtn.disabled = false; // Habilitar o botão OCR após carregar a imagem
+                usageInfo.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Função auxiliar para obter nome do idioma (para mensagens na UI)
+        function getLanguageName(code) {
+            const names = {
+                'por': 'Português',
+                'eng': 'Inglês (apenas Números)', // Renomeado para clareza
+                'spa': 'Espanhol',
+                'fre': 'Francês'
+            };
+            return names[code] || 'desconhecido';
+        }
+
+        // Função para mostrar o estado de carregamento
+        function showLoading(message = 'Inicializando OCR...') {
+            loading.style.display = 'block';
+            loadingText.textContent = message;
+            ocrBtn.disabled = true;
+            copyBtn.disabled = true;
+            contentArea.style.display = 'grid'; // Manter a área de conteúdo visível
+            textResult.innerHTML = '<div class="empty-state">Aguarde...</div>'; // Limpa e mostra mensagem de espera
+        }
+
+        // Função para esconder o estado de carregamento
+        function hideLoading() {
+            loading.style.display = 'none';
+        }
+
+        // Função principal para realizar o OCR
+        async function performOCR() {
+            if (!currentImageFile) {
+                textResult.innerHTML = '<div class="error-state">❌ Nenhuma imagem carregada para processar.</div>';
+                return;
+            }
+
+            // Garante que o Tesseract.js esteja carregado
+            if (typeof Tesseract === 'undefined') {
+                textResult.innerHTML = '<div class="error-state">❌ Tesseract.js não foi carregado. Recarregue a página ou verifique sua conexão com a internet.</div>';
+                return;
+            }
+
+            showLoading('Iniciando processo OCR...');
+            ocrBtn.disabled = true;
+
+            try {
+                // Inicializar worker do Tesseract se necessário
+                if (!ocrWorker) {
+                    isWorkerInitializing = true;
+                    loadingText.textContent = 'Carregando engine OCR (primeira vez pode demorar)...';
+                    ocrWorker = await Tesseract.createWorker({
+                        // Logger para progresso: Esta função será chamada pelo worker
+                        // e usará 'postMessage' para se comunicar com o thread principal.
+                        logger: m => {
+                            // Esta função executa no Web Worker, NÃO no thread principal.
+                            // Para atualizar a UI, precisamos enviar uma mensagem de volta.
+                            if (m.status === 'loading tesseract core') {
+                                loadingText.textContent = 'Carregando núcleo do Tesseract...';
+                            } else if (m.status === 'loading language traineddata') {
+                                loadingText.textContent = `Carregando dados de idioma (${getLanguageName(currentLanguage)})...`;
+                            } else if (m.status === 'recognizing text') {
+                                const progress = Math.round(m.progress * 100);
+                                loadingText.textContent = `Extraindo texto... ${progress}%`;
+                            } else if (m.status === 'initialized') {
+                                loadingText.textContent = 'Engine OCR pronta!';
+                            }
+                            // Nenhuma manipulação direta do DOM aqui!
+                        }
+                    });
+                    isWorkerInitializing = false;
+                }
+
+                // Como a seleção de idioma foi ocultada, fixamos o idioma para 'eng' (números)
+                // para garantir que a funcionalidade principal continue a extrair apenas números.
+                const tesseractLang = 'eng'; 
+                
+                loadingText.textContent = `Carregando modelo de ${getLanguageName(tesseractLang)}...`;
+                await ocrWorker.loadLanguage(tesseractLang);
+                await ocrWorker.initialize(tesseractLang);
+
+                // Configurar parâmetros para extrair APENAS DÍGITOS
+                const ocrParams = {
+                    tessedit_ocr_engine_mode: Tesseract.OEM.TESSERACT_LSTM_COMBINED,
+                    tessedit_pageseg_mode: Tesseract.PSM.SINGLE_BLOCK, // Útil para blocos de texto
+                    tessedit_char_whitelist: '0123456789' // Whitelist fixa para números
+                };
+                
+                await ocrWorker.setParameters(ocrParams);
+
+                loadingText.textContent = 'Analisando imagem e extraindo texto...';
+                
+                const startTime = Date.now();
+                
+                // Realizar OCR
+                const { data: { text, confidence } } = await ocrWorker.recognize(currentImageFile); // Logger já configurado
+
+                const endTime = Date.now();
+                const processingTime = endTime - startTime;
+                
+                hideLoading();
+                ocrBtn.disabled = false;
+
+                if (text && text.trim()) {
+                    let cleanText = text.trim();
+                    // Garante que só haja dígitos e espaços, pois estamos no modo "números"
+                    cleanText = cleanText.replace(/[^0-9\s]/g, '').replace(/\s+/g, ' ').trim();
+                    
+
+                    const confidencePercent = Math.round(confidence);
+                    const charCount = cleanText.length; // Calcula o número de caracteres
+
+                    let resultHtml = '<div class="success-state">✅ Texto extraído com sucesso!</div>';
+                    
+                    if (confidencePercent < 70) {
+                        resultHtml += '<div class="warning-state">⚠️ Confiança baixa - verifique o resultado</div>';
+                    }
+                    
+                    resultHtml += cleanText;
+                    // Adiciona a contagem de caracteres logo abaixo do texto extraído
+                    resultHtml += `<div class="character-count-info">Caracteres: ${charCount}</div>`;
+                    
+                    textResult.innerHTML = resultHtml;
+                    copyBtn.disabled = false;
+                    
+                    // Mostrar estatísticas
+                    usageInfo.style.display = 'block';
+                    usageText.innerHTML = `Processado em ${(processingTime/1000).toFixed(1)}s • Confiança: ${confidencePercent}%`;
+                    
+                } else {
+                    textResult.innerHTML = '<div class="warning-state">⚠️ Nenhum texto encontrado na imagem</div><br>Tente com:<br>• Imagem com melhor qualidade<br>• Maior contraste entre texto e fundo<br>• Texto mais nítido<br>• Rotacionar a imagem se necessário';
+                }
+
+            } catch (error) {
+                hideLoading();
+                ocrBtn.disabled = false;
+                
+                console.error('Erro no OCR:', error);
+                
+                let errorMessage = '❌ Erro no processamento OCR';
+                
+                if (error.message?.includes('language')) {
+                    errorMessage += '\n\n• Erro ao carregar modelo de idioma\n• Tente novamente ou escolha outro idioma';
+                } else if (error.message?.includes('worker') || error.message?.includes('terminated')) {
+                    errorMessage += '\n\n• Reinicializando engine OCR...<br>• Tente novamente';
+                    ocrWorker = null; // Força a recriação do worker
+                } else {
+                    errorMessage += '\n\n' + error.message;
+                }
+                
+                textResult.innerHTML = `<div class="error-state">${errorMessage}</div>`;
+            } finally {
+                // Certifica-se de que o input de arquivo esteja limpo para permitir
+                // a seleção do mesmo arquivo novamente se necessário.
+                fileInput.value = '';
+            }
+        }
+
+        // Função para copiar texto
+        function copyText() {
+            const text = textResult.textContent;
+            // Limpa mensagens de status para copiar apenas o texto puro
+            const cleanText = text.replace(/✅.*?\n/, '').replace(/⚠️.*?\n/, '').trim();
+            
+            if (cleanText && cleanText.length > 0) {
+                // Verifica se navigator.clipboard está disponível (mais moderno)
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(cleanText).then(() => {
+                        showCopyFeedback();
+                    }).catch(err => {
+                        console.error('Falha ao copiar (Clipboard API):', err);
+                        fallbackCopyTextToClipboard(cleanText); // Tenta método alternativo
+                    });
+                } else {
+                    fallbackCopyTextToClipboard(cleanText); // Usa método alternativo para navegadores antigos
+                }
+            } else {
+                textResult.innerHTML = '<div class="warning-state">Nenhum texto para copiar!</div>';
+            }
+        }
+
+        // Função de fallback para copiar texto (para ambientes sem navigator.clipboard)
+        function fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";  // Evita rolagem
+            textArea.style.opacity = "0";      // Esconde
+            textArea.style.pointerEvents = "none"; // Não interagir
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showCopyFeedback();
+                } else {
+                    console.error('Falha ao copiar (execCommand)');
+                    textResult.innerHTML = '<div class="error-state">Erro ao copiar texto. Por favor, copie manualmente.</div>';
+                }
+            } catch (err) {
+                console.error('Falha ao copiar (execCommand):', err);
+                textResult.innerHTML = '<div class="error-state">Erro ao copiar texto. Por favor, copie manualmente.</div>';
+            }
+            document.body.removeChild(textArea);
+        }
+
+        // Feedback visual de cópia
+        function showCopyFeedback() {
+            const originalText = copyBtn.textContent;
+            copyBtn.textContent = '✅ Copiado!';
+            copyBtn.style.background = 'linear-gradient(45deg, #4CAF50, #66BB6A)';
+            
+            setTimeout(() => {
+                copyBtn.textContent = originalText;
+                copyBtn.style.background = 'linear-gradient(45deg, #4CAF50, #45a049)';
+            }, 2000);
+        }
+
+        // Limpar worker quando a página for fechada
+        window.addEventListener('beforeunload', async function() {
+            if (ocrWorker) {
+                try {
+                    await ocrWorker.terminate();
+                    console.log('Tesseract worker terminado.');
+                } catch (e) {
+                    console.warn('Erro ao terminar worker Tesseract (pode já ter sido terminado):', e);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
