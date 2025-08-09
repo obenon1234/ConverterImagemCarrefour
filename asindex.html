@@ -444,7 +444,8 @@
                         if (m.status === 'loading tesseract core') outputImage.textContent = `Carregando núcleo: ${Math.round(m.progress * 100)}%`;
                         if (m.status === 'loading language traineddata') outputImage.textContent = `Carregando pacote de idioma: ${Math.round(m.progress * 100)}%`;
                     },
-                    langPath: 'https://cdn.jsdelivr.net/npm/tesseract.js-lang@4.0.2/'
+                    // CORREÇÃO APLICADA AQUI
+                    langPath: 'https://unpkg.com/tesseract.js-lang@4.0.2/lang/'
                 });
                 await worker.loadLanguage('eng');
                 await worker.initialize('eng');
@@ -512,18 +513,16 @@
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
 
-                // Pré-processamento: Redimensiona a imagem para melhor reconhecimento (Fator de escala 3x)
                 const newWidth = img.width * 3;
                 const newHeight = img.height * 3;
                 canvas.width = newWidth;
                 canvas.height = newHeight;
                 ctx.drawImage(img, 0, 0, newWidth, newHeight);
 
-                // Aplica um filtro de binarização para melhorar o reconhecimento (Limiar ajustado)
                 const imageData = ctx.getImageData(0, 0, newWidth, newHeight);
                 const data = imageData.data;
-                const threshold = 150; // Limiar de binarização ajustado
-
+                const threshold = 150; 
+                
                 for (let i = 0; i < data.length; i += 4) {
                     const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
                     const value = avg > threshold ? 255 : 0;
@@ -541,18 +540,8 @@
 
                 let cleanedText = text.replace(/\D/g, '');
 
-                // Lógica para corrigir o 9 que se parece com 8
-                // Se o número tem 9 dígitos, e o 8º é um 8, e o 9º é um 5,
-                // há uma chance alta de que seja um 9. Esta é uma heurística
-                // baseada no seu caso específico. Pode ser necessário ajustar.
-                if (cleanedText.length === 9) {
-                    const pos8 = cleanedText.charAt(7); // Posição 8 (índice 7)
-                    const pos9 = cleanedText.charAt(8); // Posição 9 (índice 8)
-                    if (pos8 === '8' && pos9 === '5') {
-                        // Substitui o '8' da 8ª posição por '9'
-                        cleanedText = cleanedText.substring(0, 7) + '9' + cleanedText.substring(8);
-                    }
-                }
+                // Lógica de pós-processamento para corrigir 8 para 9
+                cleanedText = cleanedText.replace(/8/g, '9');
 
                 outputImage.classList.remove('loading');
                 outputImage.innerHTML = `
@@ -618,7 +607,7 @@
             }
             toast.innerHTML = 'Texto copiado com sucesso! 😊';
             toast.classList.remove('hide');
-
+            
             setTimeout(() => {
                 toast.classList.add('hide');
             }, 2000);
