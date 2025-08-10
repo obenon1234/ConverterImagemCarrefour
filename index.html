@@ -582,6 +582,17 @@
                                 </div>
                             </div>
                             <div class="flex items-start p-3 bg-white rounded-md border">
+                                <i class="fas fa-dollar-sign fa-lg text-indigo-500 w-8 text-center mt-1"></i>
+                                <div class="ml-4 flex-1">
+                                    <p class="text-sm text-gray-500">Valor do Documento</p>
+                                    <p id="validator-payment-value" class="text-lg font-semibold text-gray-700"></p>
+                                </div>
+                                <button onclick="validatorCopyToClipboard('validator-payment-value', 'validator-feedback-value')" class="p-2 text-gray-400 hover:text-indigo-600 ml-2">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                                <span id="validator-feedback-value" class="copy-feedback ml-2 opacity-0">Copiado!</span>
+                            </div>
+                            <div class="flex items-start p-3 bg-white rounded-md border">
                                 <i class="fas fa-calendar-alt fa-lg text-indigo-500 w-8 text-center mt-1"></i>
                                 <div class="ml-4 flex-1">
                                     <p class="text-sm text-gray-500">Data de Vencimento</p>
@@ -614,6 +625,12 @@
                                 </button>
                                 <span id="validator-feedback-barcode" class="copy-feedback ml-2 opacity-0">Copiado!</span>
                             </div>
+                        </div>
+                        <div class="mt-6 text-center">
+                             <button id="validator-save-button" class="bg-green-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-green-700 transition-all duration-300 shadow-md hidden">
+                                <i class="fas fa-save mr-2"></i>
+                                Salvar Guia
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -895,9 +912,12 @@
         const validatorDueDateStatusElement = document.getElementById('validator-due-date-status');
         const validatorSupplierNameElement = document.getElementById('validator-supplier-name');
         const validatorSupplierNumberElement = document.getElementById('validator-supplier-number');
+        const validatorPaymentValueElement = document.getElementById('validator-payment-value');
+        const validatorSaveButton = document.getElementById('validator-save-button');
 
         let validatorFileMimeType = null;
         let validatorBase64Image = null;
+        let originalFile = null;
 
         function validatorImageToBase64(file) {
             return new Promise((resolve, reject) => {
@@ -939,6 +959,7 @@
 
         async function validatorHandleFileSelect(selectedFile) {
             if (!selectedFile) return;
+            originalFile = selectedFile; // Store the original file
             const validTypes = ['image/png', 'image/jpeg', 'image/webp', 'application/pdf'];
             if (!validTypes.includes(selectedFile.type)) {
                 validatorShowError('Por favor, selecione um arquivo de imagem (PNG, JPG, WEBP) ou PDF.');
@@ -979,13 +1000,14 @@
         function validatorShowLoader() { validatorHideMessages(); validatorLoader.classList.remove('hidden'); validatorProcessButton.disabled = true; }
         function validatorHideLoader() { validatorLoader.classList.add('hidden'); validatorProcessButton.disabled = false; }
         function validatorShowError(message) { validatorHideMessages(); validatorErrorText.textContent = message; validatorErrorMessage.classList.remove('hidden'); }
-        function validatorShowResults(dueDate, rawBarcode, cleanedBarcode, supplierName, supplierNumber, validationMsg, dueDateStatus) {
+        function validatorShowResults(dueDate, rawBarcode, cleanedBarcode, supplierName, supplierNumber, paymentValue, validationMsg, dueDateStatus) {
             validatorHideMessages();
             validatorDueDateElement.textContent = dueDate || 'Não encontrado';
             validatorBarcodeOriginalElement.textContent = rawBarcode || 'Não encontrado';
             validatorBarcodeCleanedElement.textContent = cleanedBarcode || 'Não encontrado';
             validatorSupplierNameElement.textContent = supplierName || 'Não identificado';
             validatorSupplierNumberElement.textContent = supplierNumber ? `Número: ${supplierNumber}` : '';
+            validatorPaymentValueElement.textContent = paymentValue ? `R$ ${paymentValue}` : 'Não encontrado';
 
             if (validationMsg) {
                 validatorBarcodeValidationElement.textContent = validationMsg;
@@ -999,12 +1021,14 @@
                 validatorDueDateStatusElement.classList.remove('hidden');
             }
             validatorResultsContainer.classList.remove('hidden');
+            validatorSaveButton.classList.remove('hidden');
         }
         function validatorHideMessages() {
             validatorLoader.classList.add('hidden');
             validatorErrorMessage.classList.add('hidden');
             validatorResultsContainer.classList.add('hidden');
             validatorBarcodeValidationElement.classList.add('hidden');
+            validatorSaveButton.classList.add('hidden');
             if (validatorDueDateStatusElement.classList.contains('status-badge-animation')) {
                 validatorDueDateStatusElement.classList.remove('status-badge-animation');
             }
@@ -1031,6 +1055,21 @@
                 console.error('Falha ao copiar o texto: ', err);
             }
         }
+
+        validatorSaveButton.addEventListener('click', () => {
+             if (!originalFile) {
+                return;
+            }
+            const url = URL.createObjectURL(originalFile);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = originalFile.name; // Seta o nome original, mas o navegador abrirá o "Salvar como"
+            document.body.appendChild(a);
+            a.click();
+            URL.revokeObjectURL(url);
+            a.remove();
+        });
 
         validatorProcessButton.addEventListener('click', async () => {
             if (!validatorBase64Image) {
@@ -1216,16 +1255,18 @@
                 Siga estes passos:
                 1.  **Extraia a Linha Digitável Completa:** Localize o código de barras e extraia a sequência completa, incluindo todos os espaços, pontos e traços, exatamente como está na imagem.
                 2.  **Extraia a Data de Vencimento:** Localize a data e formate-a como DD/MM/AAAA.
-                3.  **Identifique o Fornecedor:** Analise a guia em busca de um nome ou número que corresponda a um dos fornecedores na lista.
-                4.  **Formate a Resposta:** Retorne um objeto JSON com as chaves "vencimento", "codigo_barras", e "fornecedor". O valor de "fornecedor" DEVE SER UM OBJETO contendo as chaves "numero" e "nome". Se nenhum fornecedor for encontrado, retorne null para o objeto "fornecedor".
+                3.  **Extraia o Valor do Documento:** Encontre o valor total a ser pago (geralmente rotulado como 'Valor Documento' ou 'Valor Cobrado') e retorne como uma string.
+                4.  **Identifique o Fornecedor:** Analise a guia em busca de um nome ou número que corresponda a um dos fornecedores na lista.
+                5.  **Formate a Resposta:** Retorne um objeto JSON com as chaves "vencimento", "codigo_barras", "valor", e "fornecedor". O valor de "fornecedor" DEVE SER UM OBJETO contendo as chaves "numero" e "nome". Se nenhum fornecedor for encontrado, retorne null para o objeto "fornecedor".
 
                 Exemplo de resposta JSON:
                 {
-                  "vencimento": "15/10/2025",
-                  "codigo_barras": "85850000020-7 49220280187-7 40000992455-3 43915031818-0",
+                  "vencimento": "29/08/2025",
+                  "codigo_barras": "00190.00009 02941.037273 00012.758173 1 1880001096110",
+                  "valor": "10.961,10",
                   "fornecedor": {
-                      "numero": "8774",
-                      "nome": "Fornecedor Exemplo A"
+                      "numero": "3010016730",
+                      "nome": "INMETRO"
                   }
                 }
             `;
@@ -1248,6 +1289,7 @@
                     const parsedJson = JSON.parse(cleanTextResponse);
                     const dueDate = parsedJson.vencimento;
                     const rawBarcode = parsedJson.codigo_barras;
+                    const paymentValue = parsedJson.valor;
                     const supplierObject = parsedJson.fornecedor;
                     const supplierName = supplierObject ? supplierObject.nome : null;
                     const supplierNumber = supplierObject ? supplierObject.numero : null;
@@ -1276,7 +1318,7 @@
                         }
                     }
                     if (dueDate || cleanedBarcode) {
-                        validatorShowResults(dueDate, rawBarcode, cleanedBarcode, supplierName, supplierNumber, validationMessage, dueDateStatus);
+                        validatorShowResults(dueDate, rawBarcode, cleanedBarcode, supplierName, supplierNumber, paymentValue, validationMessage, dueDateStatus);
                     } else {
                         validatorShowError('Não foi possível extrair os dados. Tente um documento com melhor qualidade.');
                     }
