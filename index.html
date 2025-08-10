@@ -3,8 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ferramentas Carrefour: OCR e Limpador de Código de Barras</title>
+    <title>Ferramentas Carrefour: OCR, Limpador de Código de Barras, Juntar PDF e Validador</title>
+    <!-- Adicionado para o Validador de Pagamento -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
+        /* Estilos Originais */
         * {
             margin: 0;
             padding: 0;
@@ -43,11 +49,11 @@
             justify-content: center;
             margin-bottom: 20px;
             gap: 10px;
-            flex-wrap: wrap; /* Permite quebrar em várias linhas em telas pequenas */
+            flex-wrap: wrap; 
         }
 
         .tab-button {
-            background: #D0D0D0; /* Cinza claro para abas inativas */
+            background: #D0D0D0;
             color: #333333;
             border: none;
             padding: 12px 25px;
@@ -65,17 +71,17 @@
         }
 
         .tab-button.active {
-            background: linear-gradient(45deg, #ED1C24, #C00000); /* Vermelho do Carrefour */
+            background: linear-gradient(45deg, #ED1C24, #C00000);
             color: white;
             box-shadow: 0 4px 15px rgba(237, 28, 36, 0.4);
         }
 
         .tab-content {
-            display: none; /* Conteúdo da aba oculto por padrão */
+            display: none;
         }
 
         .tab-content.active {
-            display: block; /* Conteúdo da aba ativa visível */
+            display: block;
         }
 
         h1 {
@@ -86,8 +92,7 @@
             color: #333333;
         }
 
-        /* Estilos para o OCR e Limpador de Código de Barras (similaridade) */
-        .paste-area, .barcode-input-section { /* Renomeado para evitar conflito com input-area */
+        .paste-area, .barcode-input-section {
             background: #E0E0E0;
             border: 3px dashed rgba(0, 0, 0, 0.4);
             border-radius: 15px;
@@ -123,7 +128,7 @@
             margin-bottom: 15px;
         }
 
-        .upload-btn, .barcode-clean-btn {
+        .upload-btn, .barcode-clean-btn, .join-pdf-btn {
             background: linear-gradient(45deg, #ED1C24, #C00000);
             color: white;
             border: none;
@@ -135,7 +140,7 @@
             transition: all 0.3s ease;
         }
 
-        .upload-btn:hover, .barcode-clean-btn:hover {
+        .upload-btn:hover, .barcode-clean-btn:hover, .join-pdf-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(237, 28, 36, 0.4);
         }
@@ -158,24 +163,24 @@
             box-shadow: 0 4px 15px rgba(237, 28, 36, 0.4);
         }
 
-        .ocr-btn:disabled, .barcode-clean-btn:disabled {
+        .ocr-btn:disabled, .barcode-clean-btn:disabled, .join-pdf-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
             transform: none;
         }
 
-        .content-area { /* OCR content area */
+        .content-area {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 30px;
             margin-top: 30px;
         }
 
-        .image-preview, .text-output, .barcode-output { /* Reutiliza estilos */
+        .image-preview, .text-output, .barcode-output, .pdf-output-area {
             background: #E0E0E0;
             border-radius: 15px;
             padding: 20px;
-            min-height: 300px; /* Ajustado para caber no contexto de abas */
+            min-height: 300px;
             display: flex;
             flex-direction: column;
             color: #333333;
@@ -192,7 +197,7 @@
 
         .preview-img {
             max-width: 100%;
-            max-height: 250px; /* Ajustado para caber no contexto de abas */
+            max-height: 250px;
             border-radius: 10px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             object-fit: contain;
@@ -200,15 +205,15 @@
             flex-grow: 1;
         }
 
-        .text-result, .barcode-result-text { /* Estilos para texto de saída */
+        .text-result, .barcode-result-text {
             background: #CCCCCC;
             border-radius: 10px;
             padding: 15px;
-            min-height: 150px; /* Ajustado para caber no contexto de abas */
+            min-height: 150px;
             font-family: 'Courier New', monospace;
             font-size: 0.8rem;
             line-height: 1.5;
-            white-space: nowrap;
+            white-space: pre-wrap; /* Changed from nowrap */
             overflow-x: auto;
             overflow-y: auto;
             border: 1px solid rgba(0, 0, 0, 0.2);
@@ -243,7 +248,7 @@
             display: none;
         }
 
-        .language-selector { /* Este seletor foi ocultado no OCR, mas mantido caso queira reativar */
+        .language-selector {
             margin: 15px 0;
             display: none; 
             gap: 10px;
@@ -271,20 +276,18 @@
             border-color: #FF9800;
         }
 
-        /* Estilos para a área de input do limpador de código de barras */
         .barcode-input-section textarea {
             width: 100%;
-            min-height: 120px; /* Altura razoável para colar códigos */
+            min-height: 120px;
             padding: 10px;
             border-radius: 8px;
             border: 1px solid #ccc;
             resize: vertical;
             font-family: 'Courier New', monospace;
             font-size: 1rem;
-            margin-top: 15px; /* Espaço entre o hint e o textarea */
+            margin-top: 15px;
         }
 
-        /* Mensagens de estado */
         .loading {
             display: none;
             text-align: center;
@@ -352,7 +355,6 @@
             text-align: right;
         }
 
-        /* Estilos do rodapé */
         .footer {
             margin-top: 40px;
             text-align: center;
@@ -382,10 +384,82 @@
             text-align: right;
         }
 
-        /* Media Queries para Responsividade */
+        .pdf-input-area {
+            background: #E0E0E0;
+            border: 3px dashed rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+            color: #333333;
+        }
+
+        .pdf-input-area:hover {
+            border-color: rgba(0, 0, 0, 0.6);
+            background: #D0D0D0;
+        }
+
+        .pdf-file-list {
+            list-style: none;
+            padding: 0;
+            max-height: 150px;
+            overflow-y: auto;
+            margin-top: 20px;
+            text-align: left;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+        }
+
+        .pdf-file-list li {
+            background: #F0F0F0;
+            padding: 8px 15px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: #333;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .pdf-file-list li .remove-file-btn {
+            background: none;
+            border: none;
+            color: #ED1C24;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0 5px;
+            transition: color 0.2s ease;
+        }
+
+        .pdf-file-list li .remove-file-btn:hover {
+            color: #C00000;
+        }
+
+        .download-merged-pdf-btn {
+            background: linear-gradient(45deg, #388E3C, #2E7D32);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .download-merged-pdf-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(56, 142, 60, 0.4);
+        }
+        
         @media (max-width: 768px) {
             .content-area {
-                grid-template-columns: 1fr; /* Coluna única em telas menores para OCR */
+                grid-template-columns: 1fr;
                 gap: 20px;
             }
             
@@ -406,24 +480,140 @@
                 margin: 0;
             }
         }
+        
+        /* Estilos Adicionados para o Validador de Pagamento */
+        #validatorTab body {
+             font-family: 'Inter', sans-serif;
+        }
+        #validatorTab .file-input-container {
+            position: relative;
+            width: 100%;
+            height: 12rem; /* 192px */
+            border: 2px dashed #d1d5db; /* gray-300 */
+            border-radius: 0.5rem; /* rounded-lg */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+        #validatorTab .file-input-container:hover {
+            background-color: #f9fafb; /* gray-50 */
+        }
+        #validator-file-upload {
+            display: none;
+        }
+        #validatorTab .copy-feedback {
+            font-size: 0.8rem;
+            color: #16a34a; /* green-600 */
+            transition: opacity 0.5s ease-in-out;
+        }
+        
+        @keyframes pop-in {
+            0% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        #validatorTab .status-badge-animation {
+            animation: pop-in 0.3s ease-out forwards;
+        }
     </style>
 </head>
 <body>
     <div class="tab-container">
         <div class="tab-buttons">
-            <button class="tab-button active" onclick="openTab('ocrTab')">🔍 OCR de Números</button>
+            <button class="tab-button active" onclick="openTab('validatorTab')">🛡️ Validador de Pagamento</button>
+            <button class="tab-button" onclick="openTab('ocrTab')">🔍 OCR de Números</button>
             <button class="tab-button" onclick="openTab('barcodeTab')">🧹 Limpador de Código de Barras</button>
+            <button class="tab-button" onclick="openTab('joinPdfTab')">🔗 Juntar PDF</button>
+        </div>
+
+        <!-- Conteúdo da Aba Validador de Pagamento -->
+        <div id="validatorTab" class="tab-content active">
+            <div class="w-full bg-white rounded-xl p-6 md:p-8">
+                <div class="text-center mb-8">
+                    <h1 class="text-3xl font-bold text-gray-800">Validador de Guias de Pagamento</h1>
+                    <p class="text-gray-500 mt-2">Envie uma imagem ou PDF da guia e a IA extrairá os dados.</p>
+                </div>
+                <div class="mb-6">
+                    <label for="validator-file-upload" class="file-input-container" id="validator-drop-zone">
+                        <div class="text-center text-gray-500">
+                            <i class="fas fa-cloud-upload-alt fa-3x mb-2"></i>
+                            <p class="font-semibold">Clique para enviar ou arraste e solte</p>
+                            <p class="text-sm">PNG, JPG, WEBP ou PDF</p>
+                        </div>
+                    </label>
+                    <input id="validator-file-upload" type="file" accept="image/png, image/jpeg, image/webp, application/pdf">
+                </div>
+                <div id="validator-image-preview-container" class="hidden mb-6 text-center">
+                    <p class="text-sm font-medium text-gray-600 mb-2">Pré-visualização do Documento:</p>
+                    <img id="validator-image-preview" class="max-w-full max-h-80 mx-auto rounded-lg shadow-md" alt="Preview da guia de pagamento">
+                </div>
+                <div class="text-center mb-6">
+                    <button id="validator-process-button" class="bg-indigo-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-indigo-700 transition-all duration-300 shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>
+                        <i class="fas fa-cogs mr-2"></i>
+                        Extrair Dados
+                    </button>
+                </div>
+                <div id="validator-result-section" class="space-y-4">
+                    <div id="validator-loader" class="hidden flex items-center justify-center p-4 bg-gray-50 rounded-lg">
+                        <i class="fas fa-spinner fa-spin fa-2x text-indigo-500"></i>
+                        <p class="ml-3 text-gray-600">Analisando o documento... Por favor, aguarde.</p>
+                    </div>
+                    <div id="validator-error-message" class="hidden p-4 bg-red-100 text-red-700 rounded-lg flex items-center">
+                        <i class="fas fa-exclamation-triangle mr-3"></i>
+                        <span id="validator-error-text"></span>
+                    </div>
+                    <div id="validator-results-container" class="hidden p-6 bg-green-50 border border-green-200 rounded-lg shadow-sm">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4 text-center">Dados Extraídos com Sucesso!</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-start p-3 bg-white rounded-md border">
+                                <i class="fas fa-calendar-alt fa-lg text-indigo-500 w-8 text-center mt-1"></i>
+                                <div class="ml-4 flex-1">
+                                    <p class="text-sm text-gray-500">Data de Vencimento</p>
+                                    <p id="validator-due-date" class="text-lg font-semibold text-gray-700"></p>
+                                    <div id="validator-due-date-status" class="mt-2 hidden">
+                                        <span id="validator-due-date-badge" class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-bold shadow-md">
+                                        </span>
+                                    </div>
+                                </div>
+                                <button onclick="validatorCopyToClipboard('validator-due-date', 'validator-feedback-due-date')" class="p-2 text-gray-400 hover:text-indigo-600 ml-2">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                                <span id="validator-feedback-due-date" class="copy-feedback ml-2 opacity-0">Copiado!</span>
+                            </div>
+                            <div class="flex items-start p-3 bg-white rounded-md border">
+                                <i class="fas fa-barcode fa-lg text-indigo-500 w-8 text-center mt-1"></i>
+                                <div class="ml-4 flex-1 min-w-0">
+                                    <p class="text-sm text-gray-500">Código de Barras (Original)</p>
+                                    <div class="bg-gray-100 p-2 rounded-md mt-1">
+                                        <p id="validator-barcode-original" class="text-base font-mono text-gray-600 break-all"></p>
+                                    </div>
+                                    <p class="text-sm text-gray-500 mt-3">Código de Barras (Apenas Números)</p>
+                                    <div class="bg-gray-50 p-2 rounded-md mt-1">
+                                        <p id="validator-barcode-cleaned" class="text-base md:text-lg font-mono text-gray-800 break-all"></p>
+                                    </div>
+                                    <p id="validator-barcode-validation" class="text-sm text-yellow-600 font-sans mt-1 hidden"></p>
+                                </div>
+                                <button onclick="validatorCopyToClipboard('validator-barcode-cleaned', 'validator-feedback-barcode')" class="p-2 text-gray-400 hover:text-indigo-600 ml-2">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                                <span id="validator-feedback-barcode" class="copy-feedback ml-2 opacity-0">Copiado!</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Conteúdo da Aba OCR de Números -->
-        <div id="ocrTab" class="tab-content active">
+        <div id="ocrTab" class="tab-content">
             <h1>🔍 Carrefour - Extração de Números</h1>
-            
-            <div class="api-config" style="display: none;">
-                <strong>💡 OCR Offline:</strong> Este app usa Tesseract.js para reconhecimento de texto diretamente no seu navegador.
-                <br><strong>✅ Funciona sem internet</strong> • <strong>🔒 Seus dados ficam privados</strong> • <strong>⚡ Processamento local</strong>
-            </div>
-            
             <div class="paste-area" id="ocrPasteArea">
                 <div class="paste-icon">📋</div>
                 <div class="paste-text">Cole sua imagem aqui com Ctrl+V</div>
@@ -433,41 +623,24 @@
                     📁 Selecionar Arquivo
                 </button>
             </div>
-
             <div class="loading" id="ocrLoading">
                 <div class="spinner"></div>
                 <div id="ocrLoadingText">Inicializando OCR...</div>
             </div>
-
             <div class="content-area" id="ocrContentArea" style="display: none;">
                 <div class="image-preview">
-                    <div class="section-title">
-                        🖼️ Imagem Original
-                    </div>
-                    <div class="language-selector">
-                        <div style="font-size: 0.9rem; margin-bottom: 5px;">Idioma:</div>
-                        <button class="lang-btn active" data-lang="eng">🇺🇸 Números (Inglês)</button>
-                        <button class="lang-btn" data-lang="por">🇧🇷 Português (Texto Geral)</button>
-                        <button class="lang-btn" data-lang="spa">�🇸 Espanhol (Texto Geral)</button>
-                        <button class="lang-btn" data-lang="fre">🇫🇷 Francês (Texto Geral)</button>
-                    </div>
+                    <div class="section-title">🖼️ Imagem Original</div>
                     <img id="previewImage" class="preview-img" alt="Preview da imagem">
-                    
-                    <button class="ocr-btn" id="ocrProcessBtn" onclick="performOCR()">
-                        🔍 Extrair Texto
-                    </button>
-                    
+                    <button class="ocr-btn" id="ocrProcessBtn" onclick="performOCR()">🔍 Extrair Texto</button>
                     <div class="usage-info" id="ocrUsageInfo" style="display: none;">
                         <strong>📊 Uso:</strong> <span id="ocrUsageText"></span>
                     </div>
                 </div>
-
                 <div class="text-output">
                     <div class="section-title">
                         📝 Texto Extraído
                         <button class="copy-btn" id="copyOcrBtn" onclick="copyOcrText()" disabled>📋 Copiar</button>
                     </div>
-                    
                     <div class="text-result" id="ocrTextResult">
                         <div class="empty-state">Cole ou envie uma imagem e clique em "Extrair Texto".</div>
                     </div>
@@ -482,9 +655,7 @@
                 <div class="paste-icon">📄</div>
                 <div class="paste-text">Cole seu código de barras aqui</div>
                 <textarea id="barcodeInput" placeholder="Ex: 1234.567-890 123,45"></textarea>
-                <button class="barcode-clean-btn" id="cleanBarcodeBtn" onclick="cleanBarcode()">
-                    ✨ Limpar Código
-                </button>
+                <button class="barcode-clean-btn" id="cleanBarcodeBtn" onclick="cleanBarcode()">✨ Limpar Código</button>
             </div>
             <div class="barcode-output">
                 <div class="section-title">
@@ -496,6 +667,35 @@
                 </div>
             </div>
         </div>
+
+        <!-- Conteúdo da Aba Juntar PDF -->
+        <div id="joinPdfTab" class="tab-content">
+            <h1>🔗 Carrefour - Juntar PDFs</h1>
+            <p style="text-align: center; margin-bottom: 20px; color: #555;">
+                Selecione múltiplos arquivos PDF para combiná-los em um único documento.
+            </p>
+            <div class="pdf-input-area">
+                <div class="paste-icon">➕</div>
+                <div class="paste-text">Arraste e solte seus arquivos PDF aqui</div>
+                <div class="paste-hint">Ou clique para selecionar arquivos (você pode selecionar vários)</div>
+                <input type="file" class="file-input" id="pdfFileInput" accept=".pdf" multiple>
+                <button class="upload-btn" onclick="document.getElementById('pdfFileInput').click()">📂 Selecionar Arquivos PDF</button>
+                <ul id="pdfFileList" class="pdf-file-list"></ul>
+            </div>
+            <div class="loading" id="pdfLoading" style="display: none;">
+                <div class="spinner"></div>
+                <div id="pdfLoadingText">Preparando para juntar PDFs...</div>
+            </div>
+            <button class="join-pdf-btn" id="joinPdfProcessBtn" onclick="joinPdfs()" disabled>✨ Juntar PDFs Selecionados</button>
+            <div class="pdf-output-area" id="pdfOutputArea" style="display: none;">
+                <div class="section-title">✅ PDF Combinado</div>
+                <div class="text-result" id="mergedPdfResult">
+                    <div class="empty-state">O PDF resultante aparecerá aqui.</div>
+                </div>
+                <button class="download-merged-pdf-btn" id="downloadPdfBtn" disabled>⬇️ Baixar PDF Combinado</button>
+            </div>
+        </div>
+        
     </div>
 
     <footer class="footer">
@@ -504,8 +704,11 @@
         <div class="footer-right">Criador: Luiz Fraga</div> 
     </footer>
 
-    <!-- Tesseract.js CDN (versão 4.1.4) -->
+    <!-- Bibliotecas JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/4.1.4/tesseract.min.js"></script>
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    
     <script>
         // --- Funções do Sistema de Abas ---
         function openTab(tabId) {
@@ -516,10 +719,13 @@
             tabButtons.forEach(button => button.classList.remove('active'));
 
             document.getElementById(tabId).classList.add('active');
-            event.currentTarget.classList.add('active');
+            const clickedButton = Array.from(tabButtons).find(button => button.onclick.toString().includes(`openTab('${tabId}')`));
+            if (clickedButton) {
+                clickedButton.classList.add('active');
+            }
         }
 
-        // --- Variáveis e Referências do DOM para OCR ---
+        // --- Lógica para as abas originais (OCR, Barcode, Join PDF) ---
         const ocrPasteArea = document.getElementById('ocrPasteArea');
         const ocrLoading = document.getElementById('ocrLoading');
         const ocrLoadingText = document.getElementById('ocrLoadingText');
@@ -531,326 +737,376 @@
         const ocrProcessBtn = document.getElementById('ocrProcessBtn');
         const ocrUsageInfo = document.getElementById('ocrUsageInfo');
         const ocrUsageText = document.getElementById('ocrUsageText');
-        
         let currentImageFile = null;
-        let currentLanguage = 'eng'; 
         let ocrWorker = null;
-        let isWorkerInitializing = false; 
 
-        // --- Variáveis e Referências do DOM para Limpador de Código de Barras ---
         const barcodeInput = document.getElementById('barcodeInput');
         const cleanBarcodeBtn = document.getElementById('cleanBarcodeBtn');
         const cleanedBarcodeResult = document.getElementById('cleanedBarcodeResult');
         const copyBarcodeBtn = document.getElementById('copyBarcodeBtn');
 
-        // --- Event Listeners para OCR ---
-        ocrPasteArea.addEventListener('paste', handleOcrPaste);
-        ocrPasteArea.addEventListener('dragover', handleOcrDragOver);
-        ocrPasteArea.addEventListener('drop', handleOcrDrop);
-        ocrPasteArea.addEventListener('dragleave', handleOcrDragLeave);
-        ocrFileInput.addEventListener('change', handleOcrFileSelect);
+        const pdfFileInput = document.getElementById('pdfFileInput');
+        const pdfFileList = document.getElementById('pdfFileList');
+        const joinPdfProcessBtn = document.getElementById('joinPdfProcessBtn');
+        const pdfLoading = document.getElementById('pdfLoading');
+        const pdfLoadingText = document.getElementById('pdfLoadingText');
+        const pdfOutputArea = document.getElementById('pdfOutputArea');
+        const mergedPdfResult = document.getElementById('mergedPdfResult');
+        const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+        let selectedPdfFiles = [];
+        let mergedPdfBytes = null;
 
-        // --- Event Listeners para Limpador de Código de Barras ---
-        barcodeInput.addEventListener('input', () => {
-            const hasText = barcodeInput.value.trim().length > 0;
-            cleanBarcodeBtn.disabled = !hasText;
-            copyBarcodeBtn.disabled = !hasText; 
-            if (!hasText) {
-                 cleanedBarcodeResult.innerHTML = '<div class="empty-state">O código de barras limpo aparecerá aqui.</div>';
-            }
-        });
-        cleanBarcodeBtn.disabled = true; 
-        copyBarcodeBtn.disabled = true;
-
-        // --- Funções do OCR (mantidas e adaptadas para IDs únicos) ---
-        function handleOcrPaste(e) {
-            e.preventDefault();
-            const items = e.clipboardData.items;
-            for (let i = 0; i < items.length; i++) {
-                if (items[i].type.indexOf('image') !== -1) {
-                    const file = items[i].getAsFile();
-                    processOcrImage(file);
-                    break;
+        if(ocrPasteArea) {
+            ocrPasteArea.addEventListener('paste', handleOcrPaste);
+            ocrPasteArea.addEventListener('dragover', handleOcrDragOver);
+            ocrPasteArea.addEventListener('drop', handleOcrDrop);
+            ocrPasteArea.addEventListener('dragleave', handleOcrDragLeave);
+            ocrFileInput.addEventListener('change', handleOcrFileSelect);
+        }
+        if(barcodeInput) {
+            barcodeInput.addEventListener('input', () => {
+                const hasText = barcodeInput.value.trim().length > 0;
+                cleanBarcodeBtn.disabled = !hasText;
+                copyBarcodeBtn.disabled = true; 
+                if (!hasText) {
+                    cleanedBarcodeResult.innerHTML = '<div class="empty-state">O código de barras limpo aparecerá aqui.</div>';
                 }
-            }
+            });
+            cleanBarcodeBtn.disabled = true; 
+            copyBarcodeBtn.disabled = true;
+        }
+        if(document.getElementById('joinPdfTab')) {
+            document.getElementById('joinPdfTab').addEventListener('dragover', handlePdfDragOver);
+            document.getElementById('joinPdfTab').addEventListener('drop', handlePdfDrop);
+            document.getElementById('joinPdfTab').addEventListener('dragleave', handlePdfDragLeave);
+            pdfFileInput.addEventListener('change', handlePdfFileSelect);
+            downloadPdfBtn.addEventListener('click', downloadMergedPdf);
         }
 
-        function handleOcrDragOver(e) {
-            e.preventDefault();
-            ocrPasteArea.classList.add('dragover');
-        }
-
-        function handleOcrDrop(e) {
-            e.preventDefault();
-            ocrPasteArea.classList.remove('dragover');
-            const files = e.dataTransfer.files;
-            if (files.length > 0 && files[0].type.startsWith('image/')) {
-                processOcrImage(files[0]);
-            }
-        }
-
-        function handleOcrDragLeave(e) {
-            e.preventDefault();
-            ocrPasteArea.classList.remove('dragover');
-        }
-
-        function handleOcrFileSelect(e) {
-            const file = e.target.files[0];
-            if (file && file.type.startsWith('image/')) {
-                processOcrImage(file);
-            }
-        }
-
-        function processOcrImage(file) {
-            if (file.size > 5 * 1024 * 1024) { // 5MB
-                ocrTextResult.innerHTML = '<div class="error-state">⚠️ Arquivo muito grande! Máximo 5MB.<br>Compacte a imagem e tente novamente.</div>';
-                ocrProcessBtn.disabled = true;
-                copyOcrBtn.disabled = true;
-                ocrUsageInfo.style.display = 'none';
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                previewImage.src = e.target.result;
-                currentImageFile = file;
-                ocrContentArea.style.display = 'grid'; // Exibir a área de conteúdo
-                
-                ocrTextResult.innerHTML = '<div class="empty-state">Clique em "Extrair Texto" para processar 👆</div>';
-                copyOcrBtn.disabled = true;
-                ocrProcessBtn.disabled = false;
-                ocrUsageInfo.style.display = 'none';
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function getLanguageName(code) {
-            const names = { 'por': 'por', 'eng': 'eng', 'spa': 'spa', 'fre': 'fra' };
-            return names[code] || 'desconhecido';
-        }
-
-        function showOcrLoading(message = 'Inicializando OCR...') {
-            ocrLoading.style.display = 'block';
-            ocrLoadingText.textContent = message;
-            ocrProcessBtn.disabled = true;
-            copyOcrBtn.disabled = true;
-            ocrTextResult.innerHTML = '<div class="empty-state">Aguarde...</div>';
-        }
-
-        function hideOcrLoading() {
-            ocrLoading.style.display = 'none';
-        }
-
+        function handleOcrPaste(e) { e.preventDefault(); const items = e.clipboardData.items; for (let i = 0; i < items.length; i++) { if (items[i].type.indexOf('image') !== -1) { processOcrImage(items[i].getAsFile()); break; } } }
+        function handleOcrDragOver(e) { e.preventDefault(); ocrPasteArea.classList.add('dragover'); }
+        function handleOcrDrop(e) { e.preventDefault(); ocrPasteArea.classList.remove('dragover'); const files = e.dataTransfer.files; if (files.length > 0 && files[0].type.startsWith('image/')) { processOcrImage(files[0]); } }
+        function handleOcrDragLeave(e) { e.preventDefault(); ocrPasteArea.classList.remove('dragover'); }
+        function handleOcrFileSelect(e) { const file = e.target.files[0]; if (file) { processOcrImage(file); } }
+        function processOcrImage(file) { if (file.size > 5 * 1024 * 1024) { ocrTextResult.innerHTML = '<div class="error-state">⚠️ Arquivo muito grande! Máximo 5MB.</div>'; return; } const reader = new FileReader(); reader.onload = function(e) { previewImage.src = e.target.result; currentImageFile = file; ocrContentArea.style.display = 'grid'; ocrTextResult.innerHTML = '<div class="empty-state">Clique em "Extrair Texto" para processar 👆</div>'; copyOcrBtn.disabled = true; ocrProcessBtn.disabled = false; ocrUsageInfo.style.display = 'none'; }; reader.readAsDataURL(file); }
+        
         async function performOCR() {
-            if (!currentImageFile) {
-                ocrTextResult.innerHTML = '<div class="error-state">❌ Nenhuma imagem carregada para processar.</div>';
-                return;
-            }
-            if (typeof Tesseract === 'undefined') {
-                ocrTextResult.innerHTML = '<div class="error-state">❌ Tesseract.js não foi carregado. Recarregue a página ou verifique sua conexão com a internet.</div>';
-                return;
-            }
-
+            if (!currentImageFile) return;
             showOcrLoading('Iniciando processo OCR...');
-            ocrProcessBtn.disabled = true;
-
             try {
                 if (!ocrWorker) {
-                    isWorkerInitializing = true;
-                    ocrLoadingText.textContent = 'Carregando engine OCR (primeira vez pode demorar)...';
                     ocrWorker = await Tesseract.createWorker({
                         logger: m => {
-                            if (m.status === 'loading tesseract core') {
-                                ocrLoadingText.textContent = 'Carregando núcleo do Tesseract...';
-                            } else if (m.status === 'loading language traineddata') {
-                                ocrLoadingText.textContent = `Carregando dados de idioma (${currentLanguage})...`; 
-                            } else if (m.status === 'recognizing text') {
-                                const progress = Math.round(m.progress * 100);
-                                ocrLoadingText.textContent = `Extraindo texto... ${progress}%`;
-                            } else if (m.status === 'initialized') {
-                                ocrLoadingText.textContent = 'Engine OCR pronta!';
+                            if (m.status === 'recognizing text') {
+                                ocrLoadingText.textContent = `Extraindo texto... ${Math.round(m.progress * 100)}%`;
+                            } else {
+                                ocrLoadingText.textContent = 'Carregando engine OCR...';
                             }
                         }
                     });
-                    isWorkerInitializing = false;
                 }
-
-                const tesseractLang = 'eng'; 
-                ocrLoadingText.textContent = `Carregando modelo de ${tesseractLang}...`;
-                await ocrWorker.loadLanguage(tesseractLang);
-                await ocrWorker.initialize(tesseractLang);
-
-                const ocrParams = {
-                    tessedit_ocr_engine_mode: Tesseract.OEM.LSTM_ONLY,
-                    tessedit_pageseg_mode: Tesseract.PSM.SINGLE_LINE,
+                await ocrWorker.loadLanguage('eng');
+                await ocrWorker.initialize('eng');
+                await ocrWorker.setParameters({
                     tessedit_char_whitelist: '0123456789'
-                };
-                await ocrWorker.setParameters(ocrParams);
-
-                ocrLoadingText.textContent = 'Analisando imagem e extraindo texto...';
-                const startTime = Date.now();
+                });
                 const { data: { text, confidence } } = await ocrWorker.recognize(currentImageFile);
-                const endTime = Date.now();
-                const processingTime = endTime - startTime;
-                
-                hideOcrLoading();
-                ocrProcessBtn.disabled = false;
-
-                if (text) {
-                    let cleanText = text.replace(/[^0-9]/g, '');
-                    const incorrectPattern = '2063';
-                    const correctPattern = '2963';
-                    if (cleanText.includes(incorrectPattern)) {
-                        cleanText = cleanText.replaceAll(incorrectPattern, correctPattern);
-                        console.warn(`Correção heurística aplicada: todas as ocorrências de '${incorrectPattern}' alteradas para '${correctPattern}'.`);
-                    }
-                    
-                    const confidencePercent = Math.round(confidence);
-                    const charCount = cleanText.length;
-                    
-                    let resultHtml = '<div class="success-state">✅ Texto extraído com sucesso!</div>';
-                    if (confidencePercent < 70) {
-                        resultHtml += '<div class="warning-state">⚠️ Confiança baixa - verifique o resultado</div>';
-                    }
-                    resultHtml += cleanText;
-                    resultHtml += `<div class="character-count-info">Caracteres: ${charCount}</div>`;
-                    
-                    ocrTextResult.innerHTML = resultHtml;
-                    copyOcrBtn.disabled = false;
-                    
-                    ocrUsageInfo.style.display = 'block';
-                    ocrUsageText.innerHTML = `Processado em ${(processingTime/1000).toFixed(1)}s • Confiança: ${confidencePercent}%`;
-                    
-                } else {
-                    ocrTextResult.innerHTML = '<div class="warning-state">⚠️ Nenhum texto encontrado na imagem</div><br>Tente com:<br>• Imagem com melhor qualidade<br>• Maior contraste entre texto e fundo<br>• Texto mais nítido<br>• Rotacionar a imagem se necessário';
+                let cleanText = text.replace(/[^0-9]/g, '');
+                if (cleanText.includes('2063')) {
+                    cleanText = cleanText.replaceAll('2063', '2963');
                 }
-
+                const charCount = cleanText.length;
+                ocrTextResult.innerHTML = `<div class="success-state">✅ Texto extraído!</div>${cleanText}<div class="character-count-info">Caracteres: ${charCount}</div>`;
+                copyOcrBtn.disabled = false;
+                ocrUsageInfo.style.display = 'block';
+                ocrUsageText.innerHTML = `Confiança: ${Math.round(confidence)}%`;
             } catch (error) {
+                console.error('Erro no OCR:', error);
+                ocrTextResult.innerHTML = `<div class="error-state">❌ Erro no processamento OCR</div>`;
+            } finally {
                 hideOcrLoading();
                 ocrProcessBtn.disabled = false;
-                console.error('Erro no OCR:', error);
-                let errorMessage = '❌ Erro no processamento OCR';
-                if (error.message?.includes('language')) {
-                    errorMessage += '\n\n• Erro ao carregar modelo de idioma\n• Tente novamente ou escolha outro idioma';
-                } else if (error.message?.includes('worker') || error.message?.includes('terminated')) {
-                    errorMessage += '\n\n• Reinicializando engine OCR...<br>• Tente novamente';
-                    ocrWorker = null;
-                } else {
-                    errorMessage += '\n\n' + error.message;
-                }
-                ocrTextResult.innerHTML = `<div class="error-state">${errorMessage}</div>`;
-            } finally {
-                ocrFileInput.value = '';
             }
         }
 
-        function copyOcrText() {
-            const text = ocrTextResult.textContent;
-            const cleanText = text.replace(/✅.*?\n/, '').replace(/⚠️.*?\n/, '').replace(/Caracteres: \d+/, '');
-            
-            if (cleanText && cleanText.length > 0) {
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                    navigator.clipboard.writeText(cleanText).then(() => {
-                        showCopyFeedback(copyOcrBtn);
-                    }).catch(err => {
-                        console.error('Falha ao copiar (Clipboard API):', err);
-                        fallbackCopyTextToClipboard(cleanText, copyOcrBtn);
-                    });
-                } else {
-                    fallbackCopyTextToClipboard(cleanText, copyOcrBtn);
-                }
-            } else {
-                ocrTextResult.innerHTML = '<div class="warning-state">Nenhum texto para copiar!</div>';
-            }
-        }
-
-        // --- Funções do Limpador de Código de Barras ---
+        function showOcrLoading(message) { ocrLoading.style.display = 'block'; ocrLoadingText.textContent = message; }
+        function hideOcrLoading() { ocrLoading.style.display = 'none'; }
+        function copyOcrText() { const text = document.getElementById('ocrTextResult').innerText.replace(/✅.*\n/, '').replace(/Caracteres: \d+/, '').trim(); if (text) { fallbackCopyTextToClipboard(text, copyOcrBtn); } }
+        
         function cleanBarcode() {
             const rawBarcode = barcodeInput.value;
-            const cleaned = rawBarcode.replace(/[ \-.,]/g, ''); 
-            
+            const cleaned = rawBarcode.replace(/\D/g, ''); // Remove anything that is not a digit
+            const charCount = cleaned.length;
             if (cleaned.length > 0) {
-                cleanedBarcodeResult.innerHTML = `<div class="success-state">✅ Código limpo com sucesso!</div>${cleaned}`;
+                cleanedBarcodeResult.innerHTML = `<div class="success-state">✅ Código limpo!</div>${cleaned}<div class="character-count-info">Caracteres: ${charCount}</div>`;
                 copyBarcodeBtn.disabled = false;
             } else {
-                cleanedBarcodeResult.innerHTML = '<div class="warning-state">⚠️ Nenhum número válido encontrado.</div>';
+                cleanedBarcodeResult.innerHTML = '<div class="empty-state">O código de barras limpo aparecerá aqui.</div>';
                 copyBarcodeBtn.disabled = true;
             }
         }
 
         function copyBarcode() {
-            const text = cleanedBarcodeResult.textContent;
-            const cleanText = text.replace(/✅ Código limpo com sucesso!/, '').trim();
-            
-            if (cleanText && cleanText.length > 0) {
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                    navigator.clipboard.writeText(cleanText).then(() => {
-                        showCopyFeedback(copyBarcodeBtn);
-                    }).catch(err => {
-                        console.error('Falha ao copiar (Clipboard API):', err);
-                        fallbackCopyTextToClipboard(cleanText, copyBarcodeBtn);
-                    });
-                } else {
-                    fallbackCopyTextToClipboard(cleanText, copyBarcodeBtn);
-                }
-            } else {
-                cleanedBarcodeResult.innerHTML = '<div class="warning-state">Nenhum texto para copiar!</div>';
+            const rawBarcode = barcodeInput.value;
+            const cleaned = rawBarcode.replace(/\D/g, ''); // Re-clean to ensure only numbers are copied
+            if (cleaned) {
+                fallbackCopyTextToClipboard(cleaned, copyBarcodeBtn);
             }
         }
 
-        // --- Funções de Utilitário Compartilhadas ---
-        function showCopyFeedback(buttonElement) {
-            const originalText = buttonElement.textContent;
-            buttonElement.textContent = '✅ Copiado!';
-            buttonElement.style.background = 'linear-gradient(45deg, #4CAF50, #2E7D32)'; /* Verde para feedback de cópia */
-            
-            setTimeout(() => {
-                buttonElement.textContent = originalText;
-                buttonElement.style.background = 'linear-gradient(45deg, #ED1C24, #C00000)'; /* Retorna ao vermelho original */
-            }, 2000);
+        function handlePdfDragOver(e) { e.preventDefault(); e.stopPropagation(); document.getElementById('joinPdfTab').querySelector('.pdf-input-area').classList.add('dragover'); }
+        function handlePdfDrop(e) { e.preventDefault(); e.stopPropagation(); document.getElementById('joinPdfTab').querySelector('.pdf-input-area').classList.remove('dragover'); const files = Array.from(e.dataTransfer.files).filter(file => file.type === 'application/pdf'); addPdfFilesToList(files); }
+        function handlePdfDragLeave(e) { e.preventDefault(); e.stopPropagation(); document.getElementById('joinPdfTab').querySelector('.pdf-input-area').classList.remove('dragover'); }
+        function handlePdfFileSelect(e) { const files = Array.from(e.target.files).filter(file => file.type === 'application/pdf'); addPdfFilesToList(files); }
+        function addPdfFilesToList(files) { files.forEach(file => { const isDuplicate = selectedPdfFiles.some(f => f.name === file.name && f.size === file.size); if (!isDuplicate) { selectedPdfFiles.push(file); } }); renderPdfFileList(); updateJoinPdfButtonState(); }
+        function removePdfFile(fileToRemove) { selectedPdfFiles = selectedPdfFiles.filter(file => file !== fileToRemove); renderPdfFileList(); updateJoinPdfButtonState(); }
+        function renderPdfFileList() { pdfFileList.innerHTML = ''; selectedPdfFiles.forEach(file => { const li = document.createElement('li'); li.textContent = file.name; const btn = document.createElement('button'); btn.textContent = 'x'; btn.className = 'remove-file-btn'; btn.onclick = () => removePdfFile(file); li.appendChild(btn); pdfFileList.appendChild(li); }); }
+        function updateJoinPdfButtonState() { joinPdfProcessBtn.disabled = selectedPdfFiles.length < 2; if (selectedPdfFiles.length === 0) { pdfOutputArea.style.display = 'none'; downloadPdfBtn.disabled = true; } }
+        async function joinPdfs() { if (selectedPdfFiles.length < 2) return; pdfLoading.style.display = 'block'; joinPdfProcessBtn.disabled = true; try { const { PDFDocument } = PDFLib; const mergedPdf = await PDFDocument.create(); for (const file of selectedPdfFiles) { const arrayBuffer = await file.arrayBuffer(); const pdfDoc = await PDFDocument.load(arrayBuffer); const copiedPages = await mergedPdf.copyPages(pdfDoc, pdfDoc.getPageIndices()); copiedPages.forEach(page => mergedPdf.addPage(page)); } mergedPdfBytes = await mergedPdf.save(); pdfOutputArea.style.display = 'flex'; mergedPdfResult.innerHTML = `<div class="success-state">✅ PDFs unidos! Total de páginas: ${mergedPdf.getPageCount()}</div>`; downloadPdfBtn.disabled = false; } catch (error) { console.error(error); mergedPdfResult.innerHTML = `<div class="error-state">❌ Erro ao juntar PDFs.</div>`; } finally { pdfLoading.style.display = 'none'; joinPdfProcessBtn.disabled = false; } }
+        function downloadMergedPdf() { if (mergedPdfBytes) { const blob = new Blob([mergedPdfBytes], { type: 'application/pdf' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'pdfs_juntos_carrefour.pdf'; a.click(); URL.revokeObjectURL(url); } }
+        function showCopyFeedback(buttonElement, actionText = 'Copiado') { const originalText = buttonElement.textContent; buttonElement.textContent = `✅ ${actionText}!`; buttonElement.style.background = 'linear-gradient(45deg, #4CAF50, #2E7D32)'; setTimeout(() => { buttonElement.textContent = originalText; if (buttonElement.classList.contains('download-merged-pdf-btn')) { buttonElement.style.background = 'linear-gradient(45deg, #388E3C, #2E7D32)'; } else { buttonElement.style.background = 'linear-gradient(45deg, #ED1C24, #C00000)'; } }, 2000); }
+        function fallbackCopyTextToClipboard(text, buttonElement) { const textArea = document.createElement("textarea"); textArea.value = text; document.body.appendChild(textArea); textArea.select(); try { document.execCommand('copy'); showCopyFeedback(buttonElement); } catch (err) { console.error('Falha ao copiar'); } document.body.removeChild(textArea); }
+        
+        // --- Lógica para a nova aba "Validador de Pagamento" ---
+        pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js`;
+
+        const validatorFileUpload = document.getElementById('validator-file-upload');
+        const validatorDropZone = document.getElementById('validator-drop-zone');
+        const validatorImagePreviewContainer = document.getElementById('validator-image-preview-container');
+        const validatorImagePreview = document.getElementById('validator-image-preview');
+        const validatorProcessButton = document.getElementById('validator-process-button');
+        const validatorLoader = document.getElementById('validator-loader');
+        const validatorErrorMessage = document.getElementById('validator-error-message');
+        const validatorErrorText = document.getElementById('validator-error-text');
+        const validatorResultsContainer = document.getElementById('validator-results-container');
+        const validatorDueDateElement = document.getElementById('validator-due-date');
+        const validatorBarcodeOriginalElement = document.getElementById('validator-barcode-original');
+        const validatorBarcodeCleanedElement = document.getElementById('validator-barcode-cleaned');
+        const validatorBarcodeValidationElement = document.getElementById('validator-barcode-validation');
+        const validatorDueDateStatusElement = document.getElementById('validator-due-date-status');
+
+        let validatorFileMimeType = null;
+        let validatorBase64Image = null;
+
+        function validatorImageToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result.split(',')[1]);
+                reader.onerror = error => reject(error);
+            });
+        }
+        
+        async function validatorRenderPdfToImage(file) {
+            const fileReader = new FileReader();
+            return new Promise((resolve, reject) => {
+                fileReader.onload = async function() {
+                    const typedarray = new Uint8Array(this.result);
+                    try {
+                        const pdf = await pdfjsLib.getDocument(typedarray).promise;
+                        const page = await pdf.getPage(1);
+                        const viewport = page.getViewport({ scale: 2.0 });
+                        const canvas = document.createElement('canvas');
+                        const context = canvas.getContext('2d');
+                        canvas.height = viewport.height;
+                        canvas.width = viewport.width;
+                        await page.render({ canvasContext: context, viewport: viewport }).promise;
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+                        resolve({
+                            previewUrl: dataUrl,
+                            base64: dataUrl.split(',')[1],
+                            mimeType: 'image/jpeg'
+                        });
+                    } catch (pdfError) {
+                        console.error('Erro ao processar PDF:', pdfError);
+                        reject(new Error('Não foi possível ler o arquivo PDF. Ele pode estar corrompido ou protegido.'));
+                    }
+                };
+                fileReader.readAsArrayBuffer(file);
+            });
         }
 
-        function fallbackCopyTextToClipboard(text, buttonElement) {
-            const textArea = document.createElement("textarea");
-            textArea.value = text;
-            textArea.style.position = "fixed";
-            textArea.style.opacity = "0";
-            textArea.style.pointerEvents = "none";
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
+        async function validatorHandleFileSelect(selectedFile) {
+            if (!selectedFile) return;
+            const validTypes = ['image/png', 'image/jpeg', 'image/webp', 'application/pdf'];
+            if (!validTypes.includes(selectedFile.type)) {
+                validatorShowError('Por favor, selecione um arquivo de imagem (PNG, JPG, WEBP) ou PDF.');
+                return;
+            }
+            validatorHideMessages();
+            validatorProcessButton.disabled = true;
+            validatorLoader.classList.remove('hidden');
+            validatorLoader.querySelector('p').textContent = 'Processando o arquivo...';
             try {
-                const successful = document.execCommand('copy');
-                if (successful) {
-                    showCopyFeedback(buttonElement);
+                if (selectedFile.type === 'application/pdf') {
+                    const pdfData = await validatorRenderPdfToImage(selectedFile);
+                    validatorImagePreview.src = pdfData.previewUrl;
+                    validatorBase64Image = pdfData.base64;
+                    validatorFileMimeType = pdfData.mimeType;
                 } else {
-                    console.error('Falha ao copiar (execCommand)');
-                    if (buttonElement.id === 'copyOcrBtn') {
-                        ocrTextResult.innerHTML = '<div class="error-state">Erro ao copiar texto. Por favor, copie manualmente.</div>';
-                    } else if (buttonElement.id === 'copyBarcodeBtn') {
-                        cleanedBarcodeResult.innerHTML = '<div class="error-state">Erro ao copiar texto. Por favor, copie manualmente.</div>';
+                    validatorImagePreview.src = URL.createObjectURL(selectedFile);
+                    validatorBase64Image = await validatorImageToBase64(selectedFile);
+                    validatorFileMimeType = selectedFile.type;
+                }
+                validatorImagePreviewContainer.classList.remove('hidden');
+                validatorProcessButton.disabled = false;
+            } catch (error) {
+                console.error('Erro ao preparar arquivo:', error);
+                validatorShowError(error.message || 'Ocorreu um erro ao processar o arquivo.');
+                validatorImagePreviewContainer.classList.add('hidden');
+            } finally {
+                validatorLoader.classList.add('hidden');
+                validatorLoader.querySelector('p').textContent = 'Analisando o documento... Por favor, aguarde.';
+            }
+        }
+
+        validatorFileUpload.addEventListener('change', (e) => validatorHandleFileSelect(e.target.files[0]));
+        validatorDropZone.addEventListener('dragover', (e) => { e.preventDefault(); e.stopPropagation(); validatorDropZone.classList.add('bg-indigo-50'); validatorDropZone.style.borderColor = '#4f46e5'; });
+        validatorDropZone.addEventListener('dragleave', (e) => { e.preventDefault(); e.stopPropagation(); validatorDropZone.classList.remove('bg-indigo-50'); validatorDropZone.style.borderColor = '#d1d5db'; });
+        validatorDropZone.addEventListener('drop', (e) => { e.preventDefault(); e.stopPropagation(); validatorDropZone.classList.remove('bg-indigo-50'); validatorDropZone.style.borderColor = '#d1d5db'; const droppedFile = e.dataTransfer.files[0]; validatorHandleFileSelect(droppedFile); });
+
+        function validatorShowLoader() { validatorHideMessages(); validatorLoader.classList.remove('hidden'); validatorProcessButton.disabled = true; }
+        function validatorHideLoader() { validatorLoader.classList.add('hidden'); validatorProcessButton.disabled = false; }
+        function validatorShowError(message) { validatorHideMessages(); validatorErrorText.textContent = message; validatorErrorMessage.classList.remove('hidden'); }
+        function validatorShowResults(dueDate, rawBarcode, cleanedBarcode, validationMsg, dueDateStatus) {
+            validatorHideMessages();
+            validatorDueDateElement.textContent = dueDate || 'Não encontrado';
+            validatorBarcodeOriginalElement.textContent = rawBarcode || 'Não encontrado';
+            validatorBarcodeCleanedElement.textContent = cleanedBarcode || 'Não encontrado';
+            if (validationMsg) {
+                validatorBarcodeValidationElement.textContent = validationMsg;
+                validatorBarcodeValidationElement.classList.remove('hidden');
+            }
+            if (dueDateStatus) {
+                const badge = document.getElementById('validator-due-date-badge');
+                badge.className = dueDateStatus.classes;
+                badge.textContent = `${dueDateStatus.icon} ${dueDateStatus.text}`;
+                validatorDueDateStatusElement.classList.add('status-badge-animation');
+                validatorDueDateStatusElement.classList.remove('hidden');
+            }
+            validatorResultsContainer.classList.remove('hidden');
+        }
+        function validatorHideMessages() {
+            validatorLoader.classList.add('hidden');
+            validatorErrorMessage.classList.add('hidden');
+            validatorResultsContainer.classList.add('hidden');
+            validatorBarcodeValidationElement.classList.add('hidden');
+            if (validatorDueDateStatusElement.classList.contains('status-badge-animation')) {
+                validatorDueDateStatusElement.classList.remove('status-badge-animation');
+            }
+            validatorDueDateStatusElement.classList.add('hidden');
+        }
+
+        function validatorCopyToClipboard(elementId, feedbackId) {
+            const textToCopy = document.getElementById(elementId).textContent;
+            if (!textToCopy || textToCopy === 'Não encontrado') return;
+            try {
+                const textArea = document.createElement("textarea");
+                textArea.value = textToCopy;
+                textArea.style.position = "fixed";
+                textArea.style.left = "-9999px";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                const feedbackElement = document.getElementById(feedbackId);
+                feedbackElement.style.opacity = '1';
+                setTimeout(() => { feedbackElement.style.opacity = '0'; }, 2000);
+            } catch (err) {
+                console.error('Falha ao copiar o texto: ', err);
+            }
+        }
+
+        validatorProcessButton.addEventListener('click', async () => {
+            if (!validatorBase64Image) {
+                validatorShowError('Nenhum documento selecionado para processar.');
+                return;
+            }
+            const apiKey = "AIzaSyA4v_xAbxl3usCinZF0UREoS5GXo6m07FM"; 
+            validatorShowLoader();
+            const prompt = `
+                Sua tarefa é analisar a imagem de uma guia de pagamento e extrair informações EXATAMENTE como aparecem na imagem, com a maior precisão possível.
+
+                1.  **Linha Digitável Completa:** Localize a linha digitável (código de barras). Extraia a sequência COMPLETA de números, incluindo todos os espaços, pontos e traços, exatamente como estão na imagem. Não omita nem adicione nenhum caractere.
+                2.  **Data de Vencimento:** Localize a data de vencimento e formate-a como DD/MM/AAAA.
+
+                Formate a sua resposta como um objeto JSON com as chaves "vencimento" e "codigo_barras".
+
+                Exemplo de resposta JSON esperada, preservando a formatação original do código:
+                {
+                  "vencimento": "15/10/2025",
+                  "codigo_barras": "85850000020-7 49220280187-7 40000992455-3 43915031818-0"
+                }
+            `;
+            const payload = {
+                contents: [{ parts: [ { text: prompt }, { inlineData: { mimeType: validatorFileMimeType, data: validatorBase64Image } } ] }],
+                generationConfig: { responseMimeType: "application/json" }
+            };
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            try {
+                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                if (!response.ok) {
+                    const errorBody = await response.json();
+                    const detailedMessage = errorBody.error?.message || `Status ${response.status}`;
+                    throw new Error(`Erro da API: ${detailedMessage}`);
+                }
+                const result = await response.json();
+                if (result.candidates && result.candidates[0].content && result.candidates[0].content.parts[0]) {
+                    const textResponse = result.candidates[0].content.parts[0].text;
+                    const cleanTextResponse = textResponse.replace(/^```json\s*|```\s*$/g, '');
+                    const parsedJson = JSON.parse(cleanTextResponse);
+                    const dueDate = parsedJson.vencimento;
+                    const rawBarcode = parsedJson.codigo_barras;
+                    const cleanedBarcode = rawBarcode ? rawBarcode.replace(/\D/g, '') : null;
+                    let validationMessage = null;
+                    if (cleanedBarcode && !(cleanedBarcode.length === 47 || cleanedBarcode.length === 48)) {
+                        validationMessage = `Atenção: O código possui ${cleanedBarcode.length} dígitos. O padrão é 47 (boletos) ou 48 (tributos).`;
+                    }
+                    let dueDateStatus = null;
+                    if (dueDate && /^\d{2}\/\d{2}\/\d{4}$/.test(dueDate)) {
+                        const parts = dueDate.split('/');
+                        const dueDateObject = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+                        const threeDaysFromNow = new Date();
+                        threeDaysFromNow.setHours(0, 0, 0, 0);
+                        threeDaysFromNow.setDate(today.getDate() + 3);
+                        if (dueDateObject < today) {
+                            dueDateStatus = { text: "GUIA VENCIDA", icon: "😢", classes: "inline-flex items-center px-3 py-1.5 rounded-full text-sm font-bold shadow-md bg-red-500 text-white" };
+                        } else if (dueDateObject <= threeDaysFromNow) {
+                            const daysDiff = Math.ceil((dueDateObject - today) / (1000 * 60 * 60 * 24));
+                            const dayText = daysDiff <= 1 ? 'DIA' : 'DIAS';
+                            dueDateStatus = { text: `VENCE EM ${daysDiff} ${dayText}`, icon: "😟", classes: "inline-flex items-center px-3 py-1.5 rounded-full text-sm font-bold shadow-md bg-yellow-500 text-white" };
+                        } else {
+                            dueDateStatus = { text: "PAGAMENTO EM DIA", icon: "😊", classes: "inline-flex items-center px-3 py-1.5 rounded-full text-sm font-bold shadow-md bg-green-500 text-white" };
+                        }
+                    }
+                    if (dueDate || cleanedBarcode) {
+                        validatorShowResults(dueDate, rawBarcode, cleanedBarcode, validationMessage, dueDateStatus);
+                    } else {
+                        validatorShowError('Não foi possível extrair os dados. Tente um documento com melhor qualidade.');
+                    }
+                } else {
+                    if (result.candidates && result.candidates[0].finishReason === 'SAFETY') {
+                        validatorShowError('A análise foi bloqueada por segurança. A imagem pode conter informações sensíveis.');
+                    } else {
+                        validatorShowError('A resposta da IA não continha os dados esperados.');
                     }
                 }
-            } catch (err) {
-                console.error('Falha ao copiar (execCommand):', err);
-                if (buttonElement.id === 'copyOcrBtn') {
-                    ocrTextResult.innerHTML = '<div class="error-state">Erro ao copiar texto. Por favor, copie manualmente.</div>';
-                } else if (buttonElement.id === 'copyBarcodeBtn') {
-                    cleanedBarcodeResult.innerHTML = '<div class="error-state">Erro ao copiar texto. Por favor, copie manualmente.</div>';
-                }
+            } catch (error) {
+                console.error('Erro ao chamar a API do Gemini:', error);
+                validatorShowError(error.message || 'Ocorreu um erro de comunicação com a IA.');
+            } finally {
+                validatorHideLoader();
             }
-            document.body.removeChild(textArea);
-        }
+        });
 
-        // Limpar worker Tesseract quando a página for fechada
-        window.addEventListener('beforeunload', async function() {
-            if (ocrWorker) {
-                try {
-                    await ocrWorker.terminate();
-                    console.log('Tesseract worker terminado.');
-                } catch (e) {
-                    console.warn('Erro ao terminar worker Tesseract (pode já ter sido terminado):', e);
-                }
+        // Garante que a primeira aba esteja ativa ao carregar a página
+        document.addEventListener('DOMContentLoaded', () => {
+            openTab('validatorTab');
+            if(document.getElementById('joinPdfTab')) {
+                updateJoinPdfButtonState();
             }
         });
     </script>
