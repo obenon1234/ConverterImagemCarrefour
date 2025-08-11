@@ -522,7 +522,6 @@
                                     <p id="validator-supplier-number" class="text-sm font-mono text-gray-500 mt-1"></p>
                                 </div>
                             </div>
-                            <!-- NOVO BLOCO PARA O PAGADOR -->
                             <div class="flex items-start p-3 bg-white rounded-md border">
                                 <i class="fas fa-user fa-lg text-indigo-500 w-8 text-center mt-1"></i>
                                 <div class="ml-4 flex-1">
@@ -575,8 +574,13 @@
                                 <span id="validator-feedback-barcode" class="copy-feedback ml-2 opacity-0">Copiado!</span>
                             </div>
                         </div>
-                        <div class="mt-6 text-center">
-                             <button id="validator-save-button" class="bg-green-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-green-700 transition-all duration-300 shadow-md hidden">
+                        <!-- NOVO CAMPO DE ID PARA SALVAR -->
+                        <div class="mt-6 text-center space-y-4">
+                            <div>
+                                <label for="validator-id-input" class="block text-sm font-medium text-gray-700 mb-1">ID Padrão para Salvar</label>
+                                <input type="text" id="validator-id-input" class="mx-auto max-w-xs text-center shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md p-2" placeholder="Digite o ID aqui">
+                            </div>
+                            <button id="validator-save-button" class="bg-green-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-green-700 transition-all duration-300 shadow-md hidden">
                                 <i class="fas fa-save mr-2"></i>
                                 Salvar Guia
                             </button>
@@ -715,15 +719,17 @@
             dueDateStatus: document.getElementById('validator-due-date-status'),
             supplierName: document.getElementById('validator-supplier-name'),
             supplierNumber: document.getElementById('validator-supplier-number'),
-            payerName: document.getElementById('validator-payer-name'), // NOVO
+            payerName: document.getElementById('validator-payer-name'),
             paymentValue: document.getElementById('validator-payment-value'),
-            saveButton: document.getElementById('validator-save-button')
+            saveButton: document.getElementById('validator-save-button'),
+            idInput: document.getElementById('validator-id-input') // NOVO CAMPO
         };
 
         let validatorState = {
             fileMimeType: null,
             base64Image: null,
-            originalFile: null
+            originalFile: null,
+            extractedData: {} // Armazena os dados extraídos
         };
 
         function validatorImageToBase64(file) {
@@ -803,18 +809,7 @@
             validatorElements.dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); e.stopPropagation(); validatorElements.dropZone.classList.remove('bg-indigo-50'); validatorElements.dropZone.style.borderColor = '#d1d5db'; });
             validatorElements.dropZone.addEventListener('drop', (e) => { e.preventDefault(); e.stopPropagation(); validatorElements.dropZone.classList.remove('bg-indigo-50'); validatorElements.dropZone.style.borderColor = '#d1d5db'; const droppedFile = e.dataTransfer.files[0]; validatorHandleFileSelect(droppedFile); });
             validatorElements.processButton.addEventListener('click', processWithGemini);
-            validatorElements.saveButton.addEventListener('click', () => {
-                 if (!validatorState.originalFile) return;
-                 const url = URL.createObjectURL(validatorState.originalFile);
-                 const a = document.createElement('a');
-                 a.style.display = 'none';
-                 a.href = url;
-                 a.download = validatorState.originalFile.name;
-                 document.body.appendChild(a);
-                 a.click();
-                 URL.revokeObjectURL(url);
-                 a.remove();
-            });
+            validatorElements.saveButton.addEventListener('click', saveGuideWithCustomName); // Lógica de salvamento alterada
         }
 
         function validatorShowLoader(message = 'Analisando o documento... Por favor, aguarde.') { 
@@ -828,6 +823,7 @@
         
         function validatorShowResults(data) {
             validatorHideAllMessages();
+            validatorState.extractedData = data; // Armazena os dados para usar no salvamento
             const { dueDate, rawBarcode, cleanedBarcode, supplierName, supplierNumber, payerName, paymentValue, validationMsg, dueDateStatus } = data;
             
             validatorElements.dueDate.textContent = dueDate || 'Não encontrado';
@@ -835,7 +831,7 @@
             validatorElements.barcodeCleaned.textContent = cleanedBarcode || 'Não encontrado';
             validatorElements.supplierName.textContent = supplierName || 'Não identificado';
             validatorElements.supplierNumber.textContent = supplierNumber ? `Número: ${supplierNumber}` : '';
-            validatorElements.payerName.textContent = payerName || 'Não identificado'; // NOVO
+            validatorElements.payerName.textContent = payerName || 'Não identificado';
             validatorElements.paymentValue.textContent = paymentValue ? `R$ ${paymentValue}` : 'Não encontrado';
 
             if (validationMsg) {
@@ -890,7 +886,7 @@
                 validatorShowError('Nenhum documento selecionado para processar.');
                 return;
             }
-            const apiKey = "AIzaSyA4v_xAbxl3usCinZF0UREoS5GXo6m07FM"; // A chave será injetada pelo ambiente de execução
+            const apiKey = "AIzaSyA4v_xAbxl3usCinZF0UREoS5GXo6m07FM"; // Chave API inserida
             validatorShowLoader();
             
             const predefinedSupplierList = `3010010117,AMERICAN CHAMBER;3010012976,BANCO DO BRASIL S.A;3010015717,CAIXA ECONOMICA;3010016266,CONSELHO REGIONAL DE FARMACIA;3010012045,CONSELHO REGIONAL DE MEDICINA VETERINARIA;3070000164,BANCO DE BRASILIA;3050000121,TJ PR - PARANA;3050000083,ESTADO DE GOIÁS;3050000081,ESTADO DO RIO GRANDE DO SUL;3010012036,FUNJECC CAMPO GRANDE;3050000076,GOVERNO DO ESTADO DO RIO DE JANEIRO;3010012197,IBAMA;3010016730,INMETRO;3050000084,ESTADO DO MUNICIPIO DE MATO GROSSO DO SUL;3010028766,ESTADO DO CEARÁ;3050000030,MUNICIPIO DE BELFORD ROXO;3050000023,MUNICIPIO DE JUIZ DE FORA;3050000033,MUNICÍPIO DE GUARUJÁ;3010016308,MUNICIPIO DE SÃO PAULO;3050000039,MUNICIPIO DE PRAIA GRANDE;3050000002,MUNICIPIO DE RIBEIRÃO PRETO;3050000035,MUNICIPIO DE TAUBATÉ;3050000011,MUNICIPIO DE SOROCABA;3050000139,MUNICIPIO JABOATAO DOS GUARARAPES;3050000073,PREFEITURA DE CANOAS;3050000050,PREFEITURA BELO HORIZONTE;3050000016,PREFEITURA DE ANAPOLIS;3050000015,PREFEITURA DE APARECIDA DE GO;3050000057,prefeitura de campinas;3010027337,PREFEITURA DE SÃO VICENTE;3050000034,PREFEITURA DE LIMEIRA;3050000028,PREFEITURA DE NOVA IGUAÇU;3050000040,PREFEITURA DE PIRACICABA;3050000068,PREFEITURA DE PORTO ALEGRE;3050000075,PREFEITURA DE RECIFE;3050000006,PREFEITURA DE SAO BERNARDO DO CAMPO;3050000058,PREFEITURA DE SANTOS;3010016265,PREFEITURA DO RIO DE JANEIRO;3050000032,PREFEITURA INDAIATUBA;3010011977,PREFEITURA JOÃO PESSOA;3010009076,PREFEITURA MUNICIPAL DE GUARULHOS;3050000005,PREFEITURA SÃO JOSÉ DO RIO PRETO;3010027253,PREFEITURA SÃO JOSÉ DOS CAMPOS;3050000047,PREFEITURA MUNICIPAL DE GRAVATAÍ;3050000020,PREFEITURA DE FORTALEZA;3010020477,PREFEITURA MUNICIPAL DE VITORIA DA CONQUISTA;3050000071,PREFEITURA MUNICIPAL DE CABEDELO;3050000059,PREFEITURA DO MUNICIPIO DE SAO CAETANO DO SUL;3010027209,PROCON CAMPINAS;3010012146,PROCON SP;3010012047,PROCON MUNICIPAL DE NATAL;3010012256,PROCURADORIA DO RJ;3010012288,REGRISTRADORES.ORG;3050000106,SECRETARIA DA RECEITA FEDERAL;3050000079,SECRETARIA DO ESTADO DA FAZENDA;3050000082,SECRETARIA DO ESTADO DA FAZENDA;3010012273,SUPREMO TRIBUNAL FEDERAL;3010012010,TJ AMAZONAS;3050000122,TJ CEARA;3050000104,TJ DISTRITO FEDERAL;3050000103,TJ ESPIRITO SANTO;3010021082,TJ GOIAS;3050000100,TJ MINAS GERAIS;3010012008,TJ MS;3050000094,TJ PARAIBA;3010021234,TJ PERNAMBUCO;3050000102,TJ RIO DE JANEIRO;3010012110,TJ RIO GRANDE DO NORTE;3010011934,TJ SANTA CATARINA;3050000101,TJ SÃO PAULO;3010030378,TJ BAHIA;3010038603,TJ MARANHAO;3010023489,TJ PARA;3010012041,CONSELHO REGIONAL DE MEDICINA VETERINARIA - GO;3010012050,AGENCIA NACIONAL DE VIGILANCIA SANITARIA;3010019896,FUNDO S MUNICIPAL DE CAMPIINAS;3010012036,FUNDO ESPECIAL PARA INSTA;3010012073,JUNTA COMERCIAL DO ESTADO NO PARANÁ;3050000119,SUPERIOR TRIBUNAL DE JUSTIÇA;3050000019,PREFEITURA MANAUS;3010018843,SECRETARIA DO ESTADO DA FAZENDA DE MINAS GERAIS;3010021234,Tribunal de Justiça de Pernambuco;3010042592,SERGIPE JUSTICA ESTADUAL;3050000116,Bahia;3010050178,FUNDO ESTADUAL DE PROTECAO E DEFESA DO C;3010027209,PROCON-MUNICIAL CAMPINAS;3010008367,PREFEITURA MUNICIPAL DE VITORIA;3050000088,ESTADO DA PARAIBA;3010049991,PROCON BA SJDH;3010043339,PREFEITURA MUNICIPAL FEIRA DE SANTANA;3050000152,OPERADOR NACIONAL;3010045642,FUNDO ESPECIAL DE MODERNI <TJ ALAG;3010045413,PREFEITURA MUNICIAL DE CHAPECO;3010042394,AGENCIA NACIONAL DE SAÚDE;3010016303,JUNTA COMERCIAL DO ESTADO RIO GRANDE DO NORTE;3050000060,PREFEITURA DE LONDRINA;3010039992,ESTADO DO MARANHAO;3050000008,MUNICIPIO SAO GONÇALO;3010011487,CEEE;3010043657,ASSOCIAÇÃO DOS PROCURADOS ESTADO DE ALAGOAS;3010051148,PROCON FUNDO DIFUS;3050000043,MUNICIPIO DE BARUERI;3050000048,MUNICIPIO DE CAXIAS DO SUL;3010012205,PROCON JOAO PESSOA;3010019793,GOVERNO DO ESTADO DE ALAGOAS;3010043683,BANCO DO ESTADO DE SERGIPE;3010050191,ALPHA DEPOSITO DE MERCADORIA;3010043494,FUNDO DEFESA DOS DIREITOS;3010012146,PROCON;3010042544,CREA-RS;3010016266,CONSELHO FEDERAL FARMACIA;3010016282,MUNICIPIO DO CABO DE SANTO;3010027209,PROCON - PREF MUNI CAMPINAS;3010043393,PREFEITURA MUNICIAL SALVADOR;3010043543,MUNICIPIO DE JANDIRA;3010012047,INST MUN PROT DEF CONSUMIDOR;3010049416,MUNICPIO DE LAURO DE FREI;3050000086,SECRETARIA DA FAZENDA DO CEARA;3050000080,SECRETARIA DA FAZENDA DO DF;3050000017,PREFEITURA DE GOIANIA;3050000083,ESTADO DE GOIAS SEC DA ECONOMIA;3050000086,SEFAZ CEARA;3010043207,FUNDO MUNICIPAL DE SAUDE;3010044959,MUNICIPIO MARINGA;3010043162,AGENCIA DESTAK DE PUBLICIDADE;3050000018,PREFEITURA CAMPO GRANDE;3010055906,SANTANDER AUTO S.A.;3010055481,JADY FERNANDES BRASILEIRO 4110;3010055141,CURITIBA - SECRETARIA MUNICIPAL DO MEIO AMBIENTE;3010055096,COORDENAÇÃO-GERAL DE ORÇAMENTO, FINANÇAS E CONTABILIDADE;3010041743,MUNICIPIO DE UBERLANDIA;3010054936,FUNDO ESPECIAL DO PODER JUDICIARIO DO ESTADO DE RORAIMA;3050000155,COLEGIO NOTARIAL DO BRASIL SECAO DE SAO PAULO;3050000077,ESTADO DO PARANÁ;3010012044,CONSELHO FFEDERAL MEDICINA RJ;3010041355,CAIXA ESPECIAL SUCUMBENCIA;3050000062,MUNICIPIO DE BALNEARIO CAMBORIU;3010012320,MUNICIPIO DE CONTAGEM;3010043434,MUNICIPIO DE SANTA CRUZ DO SUL;3010024818,PREFEITURA FERRAZ DE VASCONCELOS;3050000159,MUNICIPIO DE CAMPO LARGO;3050000160,CONSELHO REGIONAL DE ENGENHARIA E AGRONOMIA DO ESTADO DE RONDONIA;3010053714,CARTORIO DO 5 OFICIO DE JUSTICA DA COMARCA DE SAO GONCALO;3050000089,GOVERNO DO ESTADO DE PERNAMBUCO;3010053919,4º SERVICO DE REGISTRO DE IMOVEIS DA CAPITAL;3010042769,PREFEITURA FOZ IGUAÇU;3010051221,FECON;3010043107,MUNICIPIO DE AMERICANA;3010053749,FUNDO MUNICIPAL PROTEÇÃO E DEFESA DO CONSUMIDOR;3010035659,PREFEITURA MACEIO;3010043589,PREJEITURA ARACAJU;3010016266,"CONSELHO FEDERAL DE FARMÁCIA - CRF-PR";3010043162,Destak Publicidade;3010054209,"FUNDO REGIONAL DE PROTECAO E DEFESA DO CONSUMIDOR-FRPDC";3010054210,SECRETARIA DE ESTADO DO AMBIENTE E SUSTENTABILIDADE;3010054432,ASSOCIACAO DOS PROCURADORES E ADVOGADOS DO MUNICIPIO DE DIADEMA;3050000049,MUNICIPIO DE DIADEMA;3010017744,FGTS;3010042591,MUNICIPIO ITAJAÍ;3010054705,FUNDO AMBIENTAL;3010054933,5 OFICIAL DE REGISTRO DE IMOVEIS DA CAPITAL;3010041986,TRIBUNAL DE JUSTICA PERNAMBUCO;3050000094,TRIBUNAL DE JUSTICA PARAÍBA;3050000108,SECRETARIA DO TESOURO NACIONAL;3050000111,SEFAZ SP`;
@@ -948,7 +944,7 @@
                         cleanedBarcode: cleanedBarcode,
                         supplierName: parsedJson.fornecedor ? parsedJson.fornecedor.nome : null,
                         supplierNumber: parsedJson.fornecedor ? parsedJson.fornecedor.numero : null,
-                        payerName: parsedJson.nome_pagador, // NOVO
+                        payerName: parsedJson.nome_pagador,
                         paymentValue: parsedJson.valor,
                         validationMsg: validationMessage,
                         dueDateStatus: dueDateStatus
@@ -969,8 +965,76 @@
             }
         }
 
+        // --- NOVA LÓGICA DE SALVAMENTO ---
+        function saveGuideWithCustomName() {
+            if (!validatorState.originalFile || !validatorState.extractedData) {
+                alert('Não há dados suficientes para salvar o arquivo.');
+                return;
+            }
+
+            const data = validatorState.extractedData;
+            const id = validatorElements.idInput.value || 'SEM_ID';
+
+            // Mapeamento de empresas
+            const companyCodes = {
+                "CARREFOUR COMERCIO E INDUSTRIA LTDA": "BR02",
+                "COMERCIAL DE ALIMENTOS CARREFOUR LTDA": "BR02",
+                "BOMPREÇO SUPERMERCADOS DO NORDESTE LTDA": "BR02",
+                "VERPARINVEST S/A": "BR08",
+                "WMB SUPERMERCADOS DO BRASIL LTDA": "BR21",
+                "WMS SUPERMERCADOS DO BRASIL LTDA": "BR22",
+                "BOMPREÇO BAHIA SUPERMERCADOS LTDA": "BR24",
+                "TRANSPORTADORA BOMPREÇO LTDA": "BR25"
+            };
+
+            // 1. Formatar o valor
+            let formattedValue = 'VALOR_NAO_ENCONTRADO';
+            if (data.paymentValue) {
+                let cleanValue = data.paymentValue.replace(/\./g, '');
+                if (cleanValue.endsWith(',00')) {
+                    cleanValue = cleanValue.substring(0, cleanValue.length - 3);
+                }
+                formattedValue = cleanValue;
+            }
+
+
+            // 2. Determinar o código da empresa
+            const companyCode = companyCodes[data.payerName] || (data.payerName ? data.payerName.replace(/[^a-zA-Z0-9]/g, '_') : 'EMPRESA_NAO_IDENTIFICADA');
+
+            // 3. Determinar o tipo (BOL, TRI, BB)
+            let fileType = '';
+            const barcodeLength = data.cleanedBarcode ? data.cleanedBarcode.length : 0;
+            const supplierNumber = data.supplierNumber;
+
+            if (barcodeLength === 48 && (supplierNumber === '3050000108' || supplierNumber === '3050000101')) {
+                fileType = 'BB';
+            } else if (barcodeLength === 48) {
+                fileType = 'TRI';
+            } else if (barcodeLength === 47) {
+                fileType = 'BOL';
+            } else {
+                fileType = 'TIPO_DESCONHECIDO';
+            }
+
+            // 4. Montar o nome do arquivo
+            const originalFileName = validatorState.originalFile.name;
+            const fileExtension = originalFileName.substring(originalFileName.lastIndexOf('.'));
+            const newFileName = `${formattedValue}_${fileType}_${id}_${companyCode}${fileExtension}`;
+
+            // 5. Lógica de Download
+            const url = URL.createObjectURL(validatorState.originalFile);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = newFileName;
+            document.body.appendChild(a);
+            a.click();
+            URL.revokeObjectURL(url);
+            a.remove();
+        }
+
+
         // --- Lógica para as abas legadas (OCR, Barcode, Join PDF) ---
-        // (O código para as outras abas permanece o mesmo)
         const ocrPasteArea = document.getElementById('ocrPasteArea');
         const ocrLoading = document.getElementById('ocrLoading');
         const ocrLoadingText = document.getElementById('ocrLoadingText');
@@ -1160,4 +1224,3 @@
     </script>
 </body>
 </html>
-
