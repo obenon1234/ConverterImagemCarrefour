@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ferramentas Carrefour: OCR, Limpador de Código de Barras, Juntar PDF e Validador</title>
-    <!-- Adicionado para o Validador de Pagamento -->
+    <!-- Dependências de Estilo e Fontes -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
-        /* Estilos Originais */
+        /* Estilos Globais e das Abas Originais */
         * {
             margin: 0;
             padding: 0;
@@ -19,7 +19,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #0050A4; /* Azul do Carrefour */
+            background-color: #0050A4; /* Azul Carrefour */
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -213,7 +213,7 @@
             font-family: 'Courier New', monospace;
             font-size: 0.8rem;
             line-height: 1.5;
-            white-space: pre-wrap; /* Changed from nowrap */
+            white-space: pre-wrap;
             overflow-x: auto;
             overflow-y: auto;
             border: 1px solid rgba(0, 0, 0, 0.2);
@@ -246,46 +246,6 @@
 
         .file-input {
             display: none;
-        }
-
-        .language-selector {
-            margin: 15px 0;
-            display: none; 
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .lang-btn {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 6px 12px;
-            border-radius: 15px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            transition: all 0.3s ease;
-        }
-
-        .lang-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .lang-btn.active {
-            background: linear-gradient(45deg, #FF9800, #F57C00);
-            border-color: #FF9800;
-        }
-
-        .barcode-input-section textarea {
-            width: 100%;
-            min-height: 120px;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            resize: vertical;
-            font-family: 'Courier New', monospace;
-            font-size: 1rem;
-            margin-top: 15px;
         }
 
         .loading {
@@ -332,21 +292,6 @@
             margin-bottom: 15px;
         }
 
-        .warning-state {
-            color: #FBC02D;
-            margin-bottom: 15px;
-        }
-
-        .usage-info {
-            background: rgba(76, 175, 80, 0.1);
-            border-left: 4px solid #4CAF50;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            font-size: 0.8rem;
-            color: #333333;
-        }
-
         .character-count-info {
             font-size: 0.85rem;
             margin-top: 10px;
@@ -376,13 +321,8 @@
             text-align: center;
         }
 
-        .footer-left {
-            text-align: left;
-        }
-
-        .footer-right {
-            text-align: right;
-        }
+        .footer-left { text-align: left; }
+        .footer-right { text-align: right; }
 
         .pdf-input-area {
             background: #E0E0E0;
@@ -457,31 +397,7 @@
             box-shadow: 0 4px 15px rgba(56, 142, 60, 0.4);
         }
         
-        @media (max-width: 768px) {
-            .content-area {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-            
-            h1 {
-                font-size: 2rem;
-            }
-            
-            .tab-container {
-                padding: 20px;
-            }
-            .footer {
-                flex-direction: column;
-                align-items: center;
-            }
-            .footer-left, .footer-center, .footer-right {
-                text-align: center;
-                width: 100%;
-                margin: 0;
-            }
-        }
-        
-        /* Estilos Adicionados para o Validador de Pagamento */
+        /* Estilos do Validador de Pagamento */
         #validatorTab body {
              font-family: 'Inter', sans-serif;
         }
@@ -522,6 +438,31 @@
         #validatorTab .status-badge-animation {
             animation: pop-in 0.3s ease-out forwards;
         }
+
+        /* Media Queries para Responsividade */
+        @media (max-width: 768px) {
+            .content-area {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .tab-container {
+                padding: 20px;
+            }
+            .footer {
+                flex-direction: column;
+                align-items: center;
+            }
+            .footer-left, .footer-center, .footer-right {
+                text-align: center;
+                width: 100%;
+                margin: 0;
+            }
+        }
     </style>
 </head>
 <body>
@@ -533,7 +474,7 @@
             <button class="tab-button" onclick="openTab('joinPdfTab')">🔗 Juntar PDF</button>
         </div>
 
-        <!-- Conteúdo da Aba Validador de Pagamento -->
+        <!-- Conteúdo da Aba: Validador de Pagamento -->
         <div id="validatorTab" class="tab-content active">
             <div class="w-full bg-white rounded-xl p-6 md:p-8">
                 <div class="text-center mb-8">
@@ -549,7 +490,7 @@
                             <p class="text-sm">PNG, JPG, WEBP ou PDF</p>
                         </div>
                     </label>
-                    <input id="validator-file-upload" type="file" accept="image/png, image/jpeg, image/webp, application/pdf">
+                    <input id="validator-file-upload" type="file" class="file-input" accept="image/png, image/jpeg, image/webp, application/pdf">
                 </div>
                 <div id="validator-image-preview-container" class="hidden mb-6 text-center">
                     <p class="text-sm font-medium text-gray-600 mb-2">Pré-visualização do Documento:</p>
@@ -579,6 +520,14 @@
                                     <p class="text-sm text-gray-500">Fornecedor Identificado</p>
                                     <p id="validator-supplier-name" class="text-lg font-semibold text-gray-700"></p>
                                     <p id="validator-supplier-number" class="text-sm font-mono text-gray-500 mt-1"></p>
+                                </div>
+                            </div>
+                            <!-- NOVO BLOCO PARA O PAGADOR -->
+                            <div class="flex items-start p-3 bg-white rounded-md border">
+                                <i class="fas fa-user fa-lg text-indigo-500 w-8 text-center mt-1"></i>
+                                <div class="ml-4 flex-1">
+                                    <p class="text-sm text-gray-500">Pagador Identificado</p>
+                                    <p id="validator-payer-name" class="text-lg font-semibold text-gray-700"></p>
                                 </div>
                             </div>
                             <div class="flex items-start p-3 bg-white rounded-md border">
@@ -637,7 +586,7 @@
             </div>
         </div>
 
-        <!-- Conteúdo da Aba OCR de Números -->
+        <!-- Conteúdo da Aba: OCR de Números -->
         <div id="ocrTab" class="tab-content">
             <h1>🔍 Carrefour - Extração de Números</h1>
             <div class="paste-area" id="ocrPasteArea">
@@ -658,9 +607,6 @@
                     <div class="section-title">🖼️ Imagem Original</div>
                     <img id="previewImage" class="preview-img" alt="Preview da imagem">
                     <button class="ocr-btn" id="ocrProcessBtn" onclick="performOCR()">🔍 Extrair Texto</button>
-                    <div class="usage-info" id="ocrUsageInfo" style="display: none;">
-                        <strong>📊 Uso:</strong> <span id="ocrUsageText"></span>
-                    </div>
                 </div>
                 <div class="text-output">
                     <div class="section-title">
@@ -674,13 +620,13 @@
             </div>
         </div>
 
-        <!-- Conteúdo da Aba Limpador de Código de Barras -->
+        <!-- Conteúdo da Aba: Limpador de Código de Barras -->
         <div id="barcodeTab" class="tab-content">
             <h1>🧹 Limpador de Código de Barras</h1>
             <div class="barcode-input-section">
                 <div class="paste-icon">📄</div>
                 <div class="paste-text">Cole seu código de barras aqui</div>
-                <textarea id="barcodeInput" placeholder="Ex: 1234.567-890 123,45"></textarea>
+                <textarea id="barcodeInput" placeholder="Ex: 1234.567-890 123,45" class="w-full min-h-[120px] p-2.5 rounded-lg border border-gray-300 resize-y font-mono text-base mt-4"></textarea>
                 <button class="barcode-clean-btn" id="cleanBarcodeBtn" onclick="cleanBarcode()">✨ Limpar Código</button>
             </div>
             <div class="barcode-output">
@@ -694,13 +640,13 @@
             </div>
         </div>
 
-        <!-- Conteúdo da Aba Juntar PDF -->
+        <!-- Conteúdo da Aba: Juntar PDF -->
         <div id="joinPdfTab" class="tab-content">
             <h1>🔗 Carrefour - Juntar PDFs</h1>
             <p style="text-align: center; margin-bottom: 20px; color: #555;">
                 Selecione múltiplos arquivos PDF para combiná-los em um único documento.
             </p>
-            <div class="pdf-input-area">
+            <div class="pdf-input-area" id="pdfDropArea">
                 <div class="paste-icon">➕</div>
                 <div class="paste-text">Arraste e solte seus arquivos PDF aqui</div>
                 <div class="paste-hint">Ou clique para selecionar arquivos (você pode selecionar vários)</div>
@@ -710,7 +656,7 @@
             </div>
             <div class="loading" id="pdfLoading" style="display: none;">
                 <div class="spinner"></div>
-                <div id="pdfLoadingText">Preparando para juntar PDFs...</div>
+                <div id="pdfLoadingText">Juntando PDFs...</div>
             </div>
             <button class="join-pdf-btn" id="joinPdfProcessBtn" onclick="joinPdfs()" disabled>✨ Juntar PDFs Selecionados</button>
             <div class="pdf-output-area" id="pdfOutputArea" style="display: none;">
@@ -736,188 +682,49 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     
     <script>
+        // --- Lógica Principal da Aplicação ---
+        
         // --- Funções do Sistema de Abas ---
         function openTab(tabId) {
-            const tabContents = document.querySelectorAll('.tab-content');
-            tabContents.forEach(content => content.classList.remove('active'));
-
-            const tabButtons = document.querySelectorAll('.tab-button');
-            tabButtons.forEach(button => button.classList.remove('active'));
-
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
-            const clickedButton = Array.from(tabButtons).find(button => button.onclick.toString().includes(`openTab('${tabId}')`));
+            const clickedButton = Array.from(document.querySelectorAll('.tab-button')).find(button => button.onclick.toString().includes(`openTab('${tabId}')`));
             if (clickedButton) {
                 clickedButton.classList.add('active');
             }
         }
 
-        // --- Lógica para as abas originais (OCR, Barcode, Join PDF) ---
-        const ocrPasteArea = document.getElementById('ocrPasteArea');
-        const ocrLoading = document.getElementById('ocrLoading');
-        const ocrLoadingText = document.getElementById('ocrLoadingText');
-        const ocrContentArea = document.getElementById('ocrContentArea');
-        const previewImage = document.getElementById('previewImage');
-        const ocrTextResult = document.getElementById('ocrTextResult');
-        const ocrFileInput = document.getElementById('ocrFileInput');
-        const copyOcrBtn = document.getElementById('copyOcrBtn');
-        const ocrProcessBtn = document.getElementById('ocrProcessBtn');
-        const ocrUsageInfo = document.getElementById('ocrUsageInfo');
-        const ocrUsageText = document.getElementById('ocrUsageText');
-        let currentImageFile = null;
-        let ocrWorker = null;
-
-        const barcodeInput = document.getElementById('barcodeInput');
-        const cleanBarcodeBtn = document.getElementById('cleanBarcodeBtn');
-        const cleanedBarcodeResult = document.getElementById('cleanedBarcodeResult');
-        const copyBarcodeBtn = document.getElementById('copyBarcodeBtn');
-
-        const pdfFileInput = document.getElementById('pdfFileInput');
-        const pdfFileList = document.getElementById('pdfFileList');
-        const joinPdfProcessBtn = document.getElementById('joinPdfProcessBtn');
-        const pdfLoading = document.getElementById('pdfLoading');
-        const pdfLoadingText = document.getElementById('pdfLoadingText');
-        const pdfOutputArea = document.getElementById('pdfOutputArea');
-        const mergedPdfResult = document.getElementById('mergedPdfResult');
-        const downloadPdfBtn = document.getElementById('downloadPdfBtn');
-        let selectedPdfFiles = [];
-        let mergedPdfBytes = null;
-
-        if(ocrPasteArea) {
-            ocrPasteArea.addEventListener('paste', handleOcrPaste);
-            ocrPasteArea.addEventListener('dragover', handleOcrDragOver);
-            ocrPasteArea.addEventListener('drop', handleOcrDrop);
-            ocrPasteArea.addEventListener('dragleave', handleOcrDragLeave);
-            ocrFileInput.addEventListener('change', handleOcrFileSelect);
-        }
-        if(barcodeInput) {
-            barcodeInput.addEventListener('input', () => {
-                const hasText = barcodeInput.value.trim().length > 0;
-                cleanBarcodeBtn.disabled = !hasText;
-                copyBarcodeBtn.disabled = true; 
-                if (!hasText) {
-                    cleanedBarcodeResult.innerHTML = '<div class="empty-state">O código de barras limpo aparecerá aqui.</div>';
-                }
-            });
-            cleanBarcodeBtn.disabled = true; 
-            copyBarcodeBtn.disabled = true;
-        }
-        if(document.getElementById('joinPdfTab')) {
-            document.getElementById('joinPdfTab').addEventListener('dragover', handlePdfDragOver);
-            document.getElementById('joinPdfTab').addEventListener('drop', handlePdfDrop);
-            document.getElementById('joinPdfTab').addEventListener('dragleave', handlePdfDragLeave);
-            pdfFileInput.addEventListener('change', handlePdfFileSelect);
-            downloadPdfBtn.addEventListener('click', downloadMergedPdf);
-        }
-
-        function handleOcrPaste(e) { e.preventDefault(); const items = e.clipboardData.items; for (let i = 0; i < items.length; i++) { if (items[i].type.indexOf('image') !== -1) { processOcrImage(items[i].getAsFile()); break; } } }
-        function handleOcrDragOver(e) { e.preventDefault(); ocrPasteArea.classList.add('dragover'); }
-        function handleOcrDrop(e) { e.preventDefault(); ocrPasteArea.classList.remove('dragover'); const files = e.dataTransfer.files; if (files.length > 0 && files[0].type.startsWith('image/')) { processOcrImage(files[0]); } }
-        function handleOcrDragLeave(e) { e.preventDefault(); ocrPasteArea.classList.remove('dragover'); }
-        function handleOcrFileSelect(e) { const file = e.target.files[0]; if (file) { processOcrImage(file); } }
-        function processOcrImage(file) { if (file.size > 5 * 1024 * 1024) { ocrTextResult.innerHTML = '<div class="error-state">⚠️ Arquivo muito grande! Máximo 5MB.</div>'; return; } const reader = new FileReader(); reader.onload = function(e) { previewImage.src = e.target.result; currentImageFile = file; ocrContentArea.style.display = 'grid'; ocrTextResult.innerHTML = '<div class="empty-state">Clique em "Extrair Texto" para processar 👆</div>'; copyOcrBtn.disabled = true; ocrProcessBtn.disabled = false; ocrUsageInfo.style.display = 'none'; }; reader.readAsDataURL(file); }
-        
-        async function performOCR() {
-            if (!currentImageFile) return;
-            showOcrLoading('Iniciando processo OCR...');
-            try {
-                if (!ocrWorker) {
-                    ocrWorker = await Tesseract.createWorker({
-                        logger: m => {
-                            if (m.status === 'recognizing text') {
-                                ocrLoadingText.textContent = `Extraindo texto... ${Math.round(m.progress * 100)}%`;
-                            } else {
-                                ocrLoadingText.textContent = 'Carregando engine OCR...';
-                            }
-                        }
-                    });
-                }
-                await ocrWorker.loadLanguage('eng');
-                await ocrWorker.initialize('eng');
-                await ocrWorker.setParameters({
-                    tessedit_char_whitelist: '0123456789'
-                });
-                const { data: { text, confidence } } = await ocrWorker.recognize(currentImageFile);
-                let cleanText = text.replace(/[^0-9]/g, '');
-                if (cleanText.includes('2063')) {
-                    cleanText = cleanText.replaceAll('2063', '2963');
-                }
-                const charCount = cleanText.length;
-                ocrTextResult.innerHTML = `<div class="success-state">✅ Texto extraído!</div>${cleanText}<div class="character-count-info">Caracteres: ${charCount}</div>`;
-                copyOcrBtn.disabled = false;
-                ocrUsageInfo.style.display = 'block';
-                ocrUsageText.innerHTML = `Confiança: ${Math.round(confidence)}%`;
-            } catch (error) {
-                console.error('Erro no OCR:', error);
-                ocrTextResult.innerHTML = `<div class="error-state">❌ Erro no processamento OCR</div>`;
-            } finally {
-                hideOcrLoading();
-                ocrProcessBtn.disabled = false;
-            }
-        }
-
-        function showOcrLoading(message) { ocrLoading.style.display = 'block'; ocrLoadingText.textContent = message; }
-        function hideOcrLoading() { ocrLoading.style.display = 'none'; }
-        function copyOcrText() { const text = document.getElementById('ocrTextResult').innerText.replace(/✅.*\n/, '').replace(/Caracteres: \d+/, '').trim(); if (text) { fallbackCopyTextToClipboard(text, copyOcrBtn); } }
-        
-        function cleanBarcode() {
-            const rawBarcode = barcodeInput.value;
-            const cleaned = rawBarcode.replace(/\D/g, ''); // Remove anything that is not a digit
-            const charCount = cleaned.length;
-            if (cleaned.length > 0) {
-                cleanedBarcodeResult.innerHTML = `<div class="success-state">✅ Código limpo!</div>${cleaned}<div class="character-count-info">Caracteres: ${charCount}</div>`;
-                copyBarcodeBtn.disabled = false;
-            } else {
-                cleanedBarcodeResult.innerHTML = '<div class="empty-state">O código de barras limpo aparecerá aqui.</div>';
-                copyBarcodeBtn.disabled = true;
-            }
-        }
-
-        function copyBarcode() {
-            const rawBarcode = barcodeInput.value;
-            const cleaned = rawBarcode.replace(/\D/g, ''); // Re-clean to ensure only numbers are copied
-            if (cleaned) {
-                fallbackCopyTextToClipboard(cleaned, copyBarcodeBtn);
-            }
-        }
-
-        function handlePdfDragOver(e) { e.preventDefault(); e.stopPropagation(); document.getElementById('joinPdfTab').querySelector('.pdf-input-area').classList.add('dragover'); }
-        function handlePdfDrop(e) { e.preventDefault(); e.stopPropagation(); document.getElementById('joinPdfTab').querySelector('.pdf-input-area').classList.remove('dragover'); const files = Array.from(e.dataTransfer.files).filter(file => file.type === 'application/pdf'); addPdfFilesToList(files); }
-        function handlePdfDragLeave(e) { e.preventDefault(); e.stopPropagation(); document.getElementById('joinPdfTab').querySelector('.pdf-input-area').classList.remove('dragover'); }
-        function handlePdfFileSelect(e) { const files = Array.from(e.target.files).filter(file => file.type === 'application/pdf'); addPdfFilesToList(files); }
-        function addPdfFilesToList(files) { files.forEach(file => { const isDuplicate = selectedPdfFiles.some(f => f.name === file.name && f.size === file.size); if (!isDuplicate) { selectedPdfFiles.push(file); } }); renderPdfFileList(); updateJoinPdfButtonState(); }
-        function removePdfFile(fileToRemove) { selectedPdfFiles = selectedPdfFiles.filter(file => file !== fileToRemove); renderPdfFileList(); updateJoinPdfButtonState(); }
-        function renderPdfFileList() { pdfFileList.innerHTML = ''; selectedPdfFiles.forEach(file => { const li = document.createElement('li'); li.textContent = file.name; const btn = document.createElement('button'); btn.textContent = 'x'; btn.className = 'remove-file-btn'; btn.onclick = () => removePdfFile(file); li.appendChild(btn); pdfFileList.appendChild(li); }); }
-        function updateJoinPdfButtonState() { joinPdfProcessBtn.disabled = selectedPdfFiles.length < 2; if (selectedPdfFiles.length === 0) { pdfOutputArea.style.display = 'none'; downloadPdfBtn.disabled = true; } }
-        async function joinPdfs() { if (selectedPdfFiles.length < 2) return; pdfLoading.style.display = 'block'; joinPdfProcessBtn.disabled = true; try { const { PDFDocument } = PDFLib; const mergedPdf = await PDFDocument.create(); for (const file of selectedPdfFiles) { const arrayBuffer = await file.arrayBuffer(); const pdfDoc = await PDFDocument.load(arrayBuffer); const copiedPages = await mergedPdf.copyPages(pdfDoc, pdfDoc.getPageIndices()); copiedPages.forEach(page => mergedPdf.addPage(page)); } mergedPdfBytes = await mergedPdf.save(); pdfOutputArea.style.display = 'flex'; mergedPdfResult.innerHTML = `<div class="success-state">✅ PDFs unidos! Total de páginas: ${mergedPdf.getPageCount()}</div>`; downloadPdfBtn.disabled = false; } catch (error) { console.error(error); mergedPdfResult.innerHTML = `<div class="error-state">❌ Erro ao juntar PDFs.</div>`; } finally { pdfLoading.style.display = 'none'; joinPdfProcessBtn.disabled = false; } }
-        function downloadMergedPdf() { if (mergedPdfBytes) { const blob = new Blob([mergedPdfBytes], { type: 'application/pdf' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'pdfs_juntos_carrefour.pdf'; a.click(); URL.revokeObjectURL(url); } }
-        function showCopyFeedback(buttonElement, actionText = 'Copiado') { const originalText = buttonElement.textContent; buttonElement.textContent = `✅ ${actionText}!`; buttonElement.style.background = 'linear-gradient(45deg, #4CAF50, #2E7D32)'; setTimeout(() => { buttonElement.textContent = originalText; if (buttonElement.classList.contains('download-merged-pdf-btn')) { buttonElement.style.background = 'linear-gradient(45deg, #388E3C, #2E7D32)'; } else { buttonElement.style.background = 'linear-gradient(45deg, #ED1C24, #C00000)'; } }, 2000); }
-        function fallbackCopyTextToClipboard(text, buttonElement) { const textArea = document.createElement("textarea"); textArea.value = text; document.body.appendChild(textArea); textArea.select(); try { document.execCommand('copy'); showCopyFeedback(buttonElement); } catch (err) { console.error('Falha ao copiar'); } document.body.removeChild(textArea); }
-        
-        // --- Lógica para a nova aba "Validador de Pagamento" ---
+        // --- Lógica para a aba "Validador de Pagamento" ---
         pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js`;
 
-        const validatorFileUpload = document.getElementById('validator-file-upload');
-        const validatorDropZone = document.getElementById('validator-drop-zone');
-        const validatorImagePreviewContainer = document.getElementById('validator-image-preview-container');
-        const validatorImagePreview = document.getElementById('validator-image-preview');
-        const validatorProcessButton = document.getElementById('validator-process-button');
-        const validatorLoader = document.getElementById('validator-loader');
-        const validatorErrorMessage = document.getElementById('validator-error-message');
-        const validatorErrorText = document.getElementById('validator-error-text');
-        const validatorResultsContainer = document.getElementById('validator-results-container');
-        const validatorDueDateElement = document.getElementById('validator-due-date');
-        const validatorBarcodeOriginalElement = document.getElementById('validator-barcode-original');
-        const validatorBarcodeCleanedElement = document.getElementById('validator-barcode-cleaned');
-        const validatorBarcodeValidationElement = document.getElementById('validator-barcode-validation');
-        const validatorDueDateStatusElement = document.getElementById('validator-due-date-status');
-        const validatorSupplierNameElement = document.getElementById('validator-supplier-name');
-        const validatorSupplierNumberElement = document.getElementById('validator-supplier-number');
-        const validatorPaymentValueElement = document.getElementById('validator-payment-value');
-        const validatorSaveButton = document.getElementById('validator-save-button');
+        const validatorElements = {
+            fileUpload: document.getElementById('validator-file-upload'),
+            dropZone: document.getElementById('validator-drop-zone'),
+            previewContainer: document.getElementById('validator-image-preview-container'),
+            previewImage: document.getElementById('validator-image-preview'),
+            processButton: document.getElementById('validator-process-button'),
+            loader: document.getElementById('validator-loader'),
+            errorMessage: document.getElementById('validator-error-message'),
+            errorText: document.getElementById('validator-error-text'),
+            resultsContainer: document.getElementById('validator-results-container'),
+            dueDate: document.getElementById('validator-due-date'),
+            barcodeOriginal: document.getElementById('validator-barcode-original'),
+            barcodeCleaned: document.getElementById('validator-barcode-cleaned'),
+            barcodeValidation: document.getElementById('validator-barcode-validation'),
+            dueDateStatus: document.getElementById('validator-due-date-status'),
+            supplierName: document.getElementById('validator-supplier-name'),
+            supplierNumber: document.getElementById('validator-supplier-number'),
+            payerName: document.getElementById('validator-payer-name'), // NOVO
+            paymentValue: document.getElementById('validator-payment-value'),
+            saveButton: document.getElementById('validator-save-button')
+        };
 
-        let validatorFileMimeType = null;
-        let validatorBase64Image = null;
-        let originalFile = null;
+        let validatorState = {
+            fileMimeType: null,
+            base64Image: null,
+            originalFile: null
+        };
 
         function validatorImageToBase64(file) {
             return new Promise((resolve, reject) => {
@@ -959,319 +766,139 @@
 
         async function validatorHandleFileSelect(selectedFile) {
             if (!selectedFile) return;
-            originalFile = selectedFile; // Store the original file
+            validatorState.originalFile = selectedFile;
             const validTypes = ['image/png', 'image/jpeg', 'image/webp', 'application/pdf'];
             if (!validTypes.includes(selectedFile.type)) {
                 validatorShowError('Por favor, selecione um arquivo de imagem (PNG, JPG, WEBP) ou PDF.');
                 return;
             }
-            validatorHideMessages();
-            validatorProcessButton.disabled = true;
-            validatorLoader.classList.remove('hidden');
-            validatorLoader.querySelector('p').textContent = 'Processando o arquivo...';
+            validatorHideAllMessages();
+            validatorElements.processButton.disabled = true;
+            validatorShowLoader('Processando o arquivo...');
             try {
                 if (selectedFile.type === 'application/pdf') {
                     const pdfData = await validatorRenderPdfToImage(selectedFile);
-                    validatorImagePreview.src = pdfData.previewUrl;
-                    validatorBase64Image = pdfData.base64;
-                    validatorFileMimeType = pdfData.mimeType;
+                    validatorElements.previewImage.src = pdfData.previewUrl;
+                    validatorState.base64Image = pdfData.base64;
+                    validatorState.fileMimeType = pdfData.mimeType;
                 } else {
-                    validatorImagePreview.src = URL.createObjectURL(selectedFile);
-                    validatorBase64Image = await validatorImageToBase64(selectedFile);
-                    validatorFileMimeType = selectedFile.type;
+                    validatorElements.previewImage.src = URL.createObjectURL(selectedFile);
+                    validatorState.base64Image = await validatorImageToBase64(selectedFile);
+                    validatorState.fileMimeType = selectedFile.type;
                 }
-                validatorImagePreviewContainer.classList.remove('hidden');
-                validatorProcessButton.disabled = false;
+                validatorElements.previewContainer.classList.remove('hidden');
+                validatorElements.processButton.disabled = false;
             } catch (error) {
                 console.error('Erro ao preparar arquivo:', error);
                 validatorShowError(error.message || 'Ocorreu um erro ao processar o arquivo.');
-                validatorImagePreviewContainer.classList.add('hidden');
+                validatorElements.previewContainer.classList.add('hidden');
             } finally {
-                validatorLoader.classList.add('hidden');
-                validatorLoader.querySelector('p').textContent = 'Analisando o documento... Por favor, aguarde.';
+                validatorHideLoader();
             }
         }
 
-        validatorFileUpload.addEventListener('change', (e) => validatorHandleFileSelect(e.target.files[0]));
-        validatorDropZone.addEventListener('dragover', (e) => { e.preventDefault(); e.stopPropagation(); validatorDropZone.classList.add('bg-indigo-50'); validatorDropZone.style.borderColor = '#4f46e5'; });
-        validatorDropZone.addEventListener('dragleave', (e) => { e.preventDefault(); e.stopPropagation(); validatorDropZone.classList.remove('bg-indigo-50'); validatorDropZone.style.borderColor = '#d1d5db'; });
-        validatorDropZone.addEventListener('drop', (e) => { e.preventDefault(); e.stopPropagation(); validatorDropZone.classList.remove('bg-indigo-50'); validatorDropZone.style.borderColor = '#d1d5db'; const droppedFile = e.dataTransfer.files[0]; validatorHandleFileSelect(droppedFile); });
+        function setupValidatorEventListeners() {
+            validatorElements.fileUpload.addEventListener('change', (e) => validatorHandleFileSelect(e.target.files[0]));
+            validatorElements.dropZone.addEventListener('dragover', (e) => { e.preventDefault(); e.stopPropagation(); validatorElements.dropZone.classList.add('bg-indigo-50'); validatorElements.dropZone.style.borderColor = '#4f46e5'; });
+            validatorElements.dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); e.stopPropagation(); validatorElements.dropZone.classList.remove('bg-indigo-50'); validatorElements.dropZone.style.borderColor = '#d1d5db'; });
+            validatorElements.dropZone.addEventListener('drop', (e) => { e.preventDefault(); e.stopPropagation(); validatorElements.dropZone.classList.remove('bg-indigo-50'); validatorElements.dropZone.style.borderColor = '#d1d5db'; const droppedFile = e.dataTransfer.files[0]; validatorHandleFileSelect(droppedFile); });
+            validatorElements.processButton.addEventListener('click', processWithGemini);
+            validatorElements.saveButton.addEventListener('click', () => {
+                 if (!validatorState.originalFile) return;
+                 const url = URL.createObjectURL(validatorState.originalFile);
+                 const a = document.createElement('a');
+                 a.style.display = 'none';
+                 a.href = url;
+                 a.download = validatorState.originalFile.name;
+                 document.body.appendChild(a);
+                 a.click();
+                 URL.revokeObjectURL(url);
+                 a.remove();
+            });
+        }
 
-        function validatorShowLoader() { validatorHideMessages(); validatorLoader.classList.remove('hidden'); validatorProcessButton.disabled = true; }
-        function validatorHideLoader() { validatorLoader.classList.add('hidden'); validatorProcessButton.disabled = false; }
-        function validatorShowError(message) { validatorHideMessages(); validatorErrorText.textContent = message; validatorErrorMessage.classList.remove('hidden'); }
-        function validatorShowResults(dueDate, rawBarcode, cleanedBarcode, supplierName, supplierNumber, paymentValue, validationMsg, dueDateStatus) {
-            validatorHideMessages();
-            validatorDueDateElement.textContent = dueDate || 'Não encontrado';
-            validatorBarcodeOriginalElement.textContent = rawBarcode || 'Não encontrado';
-            validatorBarcodeCleanedElement.textContent = cleanedBarcode || 'Não encontrado';
-            validatorSupplierNameElement.textContent = supplierName || 'Não identificado';
-            validatorSupplierNumberElement.textContent = supplierNumber ? `Número: ${supplierNumber}` : '';
-            validatorPaymentValueElement.textContent = paymentValue ? `R$ ${paymentValue}` : 'Não encontrado';
+        function validatorShowLoader(message = 'Analisando o documento... Por favor, aguarde.') { 
+            validatorHideAllMessages(); 
+            validatorElements.loader.querySelector('p').textContent = message;
+            validatorElements.loader.classList.remove('hidden'); 
+            validatorElements.processButton.disabled = true; 
+        }
+        function validatorHideLoader() { validatorElements.loader.classList.add('hidden'); validatorElements.processButton.disabled = false; }
+        function validatorShowError(message) { validatorHideAllMessages(); validatorElements.errorText.textContent = message; validatorElements.errorMessage.classList.remove('hidden'); }
+        
+        function validatorShowResults(data) {
+            validatorHideAllMessages();
+            const { dueDate, rawBarcode, cleanedBarcode, supplierName, supplierNumber, payerName, paymentValue, validationMsg, dueDateStatus } = data;
+            
+            validatorElements.dueDate.textContent = dueDate || 'Não encontrado';
+            validatorElements.barcodeOriginal.textContent = rawBarcode || 'Não encontrado';
+            validatorElements.barcodeCleaned.textContent = cleanedBarcode || 'Não encontrado';
+            validatorElements.supplierName.textContent = supplierName || 'Não identificado';
+            validatorElements.supplierNumber.textContent = supplierNumber ? `Número: ${supplierNumber}` : '';
+            validatorElements.payerName.textContent = payerName || 'Não identificado'; // NOVO
+            validatorElements.paymentValue.textContent = paymentValue ? `R$ ${paymentValue}` : 'Não encontrado';
 
             if (validationMsg) {
-                validatorBarcodeValidationElement.textContent = validationMsg;
-                validatorBarcodeValidationElement.classList.remove('hidden');
+                validatorElements.barcodeValidation.textContent = validationMsg;
+                validatorElements.barcodeValidation.classList.remove('hidden');
             }
             if (dueDateStatus) {
                 const badge = document.getElementById('validator-due-date-badge');
                 badge.className = dueDateStatus.classes;
                 badge.textContent = `${dueDateStatus.icon} ${dueDateStatus.text}`;
-                validatorDueDateStatusElement.classList.add('status-badge-animation');
-                validatorDueDateStatusElement.classList.remove('hidden');
+                validatorElements.dueDateStatus.classList.add('status-badge-animation');
+                validatorElements.dueDateStatus.classList.remove('hidden');
             }
-            validatorResultsContainer.classList.remove('hidden');
-            validatorSaveButton.classList.remove('hidden');
+            validatorElements.resultsContainer.classList.remove('hidden');
+            validatorElements.saveButton.classList.remove('hidden');
         }
-        function validatorHideMessages() {
-            validatorLoader.classList.add('hidden');
-            validatorErrorMessage.classList.add('hidden');
-            validatorResultsContainer.classList.add('hidden');
-            validatorBarcodeValidationElement.classList.add('hidden');
-            validatorSaveButton.classList.add('hidden');
-            if (validatorDueDateStatusElement.classList.contains('status-badge-animation')) {
-                validatorDueDateStatusElement.classList.remove('status-badge-animation');
+
+        function validatorHideAllMessages() {
+            validatorElements.loader.classList.add('hidden');
+            validatorElements.errorMessage.classList.add('hidden');
+            validatorElements.resultsContainer.classList.add('hidden');
+            validatorElements.barcodeValidation.classList.add('hidden');
+            validatorElements.saveButton.classList.add('hidden');
+            if (validatorElements.dueDateStatus.classList.contains('status-badge-animation')) {
+                validatorElements.dueDateStatus.classList.remove('status-badge-animation');
             }
-            validatorDueDateStatusElement.classList.add('hidden');
+            validatorElements.dueDateStatus.classList.add('hidden');
         }
 
         function validatorCopyToClipboard(elementId, feedbackId) {
             const textToCopy = document.getElementById(elementId).textContent;
             if (!textToCopy || textToCopy === 'Não encontrado') return;
+            const cleanText = textToCopy.replace('R$ ', '');
+            
+            const textArea = document.createElement("textarea");
+            textArea.value = cleanText;
+            document.body.appendChild(textArea);
+            textArea.select();
             try {
-                const textArea = document.createElement("textarea");
-                textArea.value = textToCopy;
-                textArea.style.position = "fixed";
-                textArea.style.left = "-9999px";
-                document.body.appendChild(textArea);
-                textArea.focus();
-                textArea.select();
                 document.execCommand('copy');
-                document.body.removeChild(textArea);
                 const feedbackElement = document.getElementById(feedbackId);
                 feedbackElement.style.opacity = '1';
                 setTimeout(() => { feedbackElement.style.opacity = '0'; }, 2000);
             } catch (err) {
                 console.error('Falha ao copiar o texto: ', err);
             }
+            document.body.removeChild(textArea);
         }
 
-        validatorSaveButton.addEventListener('click', () => {
-             if (!originalFile) {
-                return;
-            }
-            const url = URL.createObjectURL(originalFile);
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            a.download = originalFile.name; // Seta o nome original, mas o navegador abrirá o "Salvar como"
-            document.body.appendChild(a);
-            a.click();
-            URL.revokeObjectURL(url);
-            a.remove();
-        });
-
-        validatorProcessButton.addEventListener('click', async () => {
-            if (!validatorBase64Image) {
+        async function processWithGemini() {
+            if (!validatorState.base64Image) {
                 validatorShowError('Nenhum documento selecionado para processar.');
                 return;
             }
-            const apiKey = "AIzaSyA4v_xAbxl3usCinZF0UREoS5GXo6m07FM"; 
+            const apiKey = ""; // A chave será injetada pelo ambiente de execução
             validatorShowLoader();
             
-            const predefinedSupplierList = `3010010117,AMERICAN CHAMBER
-3010012976,BANCO DO BRASIL S.A
-3010015717,CAIXA ECONOMICA
-3010016266,CONSELHO REGIONAL DE FARMACIA
-3010012045,CONSELHO REGIONAL DE MEDICINA VETERINARIA
-3070000164,BANCO DE BRASILIA
-3050000121,TJ PR - PARANA
-3050000083,ESTADO DE GOIÁS
-3050000081,ESTADO DO RIO GRANDE DO SUL
-3010012036,FUNJECC CAMPO GRANDE
-3050000076,GOVERNO DO ESTADO DO RIO DE JANEIRO
-3010012197,IBAMA
-3010016730,INMETRO
-3050000084,ESTADO DO MUNICIPIO DE MATO GROSSO DO SUL
-3010028766,ESTADO DO CEARÁ
-3050000030,MUNICIPIO DE BELFORD ROXO
-3050000023,MUNICIPIO DE JUIZ DE FORA
-3050000033,MUNICÍPIO DE GUARUJÁ
-3010016308,MUNICIPIO DE SÃO PAULO
-3050000039,MUNICIPIO DE PRAIA GRANDE
-3050000002,MUNICIPIO DE RIBEIRÃO PRETO
-3050000035,MUNICIPIO DE TAUBATÉ
-3050000011,MUNICIPIO DE SOROCABA
-3050000139,MUNICIPIO JABOATAO DOS GUARARAPES
-3050000073,PREFEITURA DE CANOAS
-3050000050,PREFEITURA BELO HORIZONTE
-3050000016,PREFEITURA DE ANAPOLIS
-3050000015,PREFEITURA DE APARECIDA DE GO
-3050000057,prefeitura de campinas
-3010027337,PREFEITURA DE SÃO VICENTE
-3050000034,PREFEITURA DE LIMEIRA
-3050000028,PREFEITURA DE NOVA IGUAÇU
-3050000040,PREFEITURA DE PIRACICABA
-3050000068,PREFEITURA DE PORTO ALEGRE
-3050000075,PREFEITURA DE RECIFE
-3050000006,PREFEITURA DE SAO BERNARDO DO CAMPO
-3050000058,PREFEITURA DE SANTOS
-3010016265,PREFEITURA DO RIO DE JANEIRO
-3050000032,PREFEITURA INDAIATUBA
-3010011977,PREFEITURA JOÃO PESSOA
-3010009076,PREFEITURA MUNICIPAL DE GUARULHOS
-3050000005,PREFEITURA SÃO JOSÉ DO RIO PRETO
-3010027253,PREFEITURA SÃO JOSÉ DOS CAMPOS
-3050000047,PREFEITURA MUNICIPAL DE GRAVATAÍ
-3050000020,PREFEITURA DE FORTALEZA
-3010020477,PREFEITURA MUNICIPAL DE VITORIA DA CONQUISTA
-3050000071,PREFEITURA MUNICIPAL DE CABEDELO
-3050000059,PREFEITURA DO MUNICIPIO DE SAO CAETANO DO SUL
-3010027209,PROCON CAMPINAS
-3010012146,PROCON SP
-3010012047,PROCON MUNICIPAL DE NATAL
-3010012256,PROCURADORIA DO RJ
-3010012288,REGRISTRADORES.ORG
-3050000106,SECRETARIA DA RECEITA FEDERAL
-3050000079,SECRETARIA DO ESTADO DA FAZENDA
-3050000082,SECRETARIA DO ESTADO DA FAZENDA
-3010012273,SUPREMO TRIBUNAL FEDERAL
-3010012010,TJ AMAZONAS
-3050000122,TJ CEARA
-3050000104,TJ DISTRITO FEDERAL
-3050000103,TJ ESPIRITO SANTO
-3010021082,TJ GOIAS
-3050000100,TJ MINAS GERAIS
-3010012008,TJ MS
-3050000094,TJ PARAIBA
-3010021234,TJ PERNAMBUCO
-3050000102,TJ RIO DE JANEIRO
-3010012110,TJ RIO GRANDE DO NORTE
-3010011934,TJ SANTA CATARINA
-3050000101,TJ SÃO PAULO
-3010030378,TJ BAHIA
-3010038603,TJ MARANHAO
-3010023489,TJ PARA
-3010012041,CONSELHO REGIONAL DE MEDICINA VETERINARIA - GO
-3010012050,AGENCIA NACIONAL DE VIGILANCIA SANITARIA
-3010019896,FUNDO S MUNICIPAL DE CAMPIINAS
-3010012036,FUNDO ESPECIAL PARA INSTA
-3010012073,JUNTA COMERCIAL DO ESTADO NO PARANÁ
-3050000119,SUPERIOR TRIBUNAL DE JUSTIÇA
-3050000019,PREFEITURA MANAUS
-3010018843,SECRETARIA DO ESTADO DA FAZENDA DE MINAS GERAIS
-3010021234,Tribunal de Justiça de Pernambuco
-3010042592,SERGIPE JUSTICA ESTADUAL
-3050000116,Bahia
-3010050178,FUNDO ESTADUAL DE PROTECAO E DEFESA DO C
-3010027209,PROCON-MUNICIAL CAMPINAS
-3010008367,PREFEITURA MUNICIPAL DE VITORIA
-3050000088,ESTADO DA PARAIBA
-3010049991,PROCON BA SJDH
-3010043339,PREFEITURA MUNICIPAL FEIRA DE SANTANA
-3050000152,OPERADOR NACIONAL
-3010045642,FUNDO ESPECIAL DE MODERNI <TJ ALAG
-3010045413,PREFEITURA MUNICIAL DE CHAPECO
-3010042394,AGENCIA NACIONAL DE SAÚDE
-3010016303,JUNTA COMERCIAL DO ESTADO RIO GRANDE DO NORTE
-3050000060,PREFEITURA DE LONDRINA
-3010039992,ESTADO DO MARANHAO
-3050000008,MUNICIPIO SAO GONÇALO
-3010011487,CEEE
-3010043657,ASSOCIAÇÃO DOS PROCURADOS ESTADO DE ALAGOAS
-3010051148,PROCON FUNDO DIFUS
-3050000043,MUNICIPIO DE BARUERI
-3050000048,MUNICIPIO DE CAXIAS DO SUL
-3010012205,PROCON JOAO PESSOA
-3010019793,GOVERNO DO ESTADO DE ALAGOAS
-3010043683,BANCO DO ESTADO DE SERGIPE
-3010050191,ALPHA DEPOSITO DE MERCADORIA
-3010043494,FUNDO DEFESA DOS DIREITOS
-3010012146,PROCON
-3010042544,CREA-RS
-3010016266,CONSELHO FEDERAL FARMACIA
-3010016282,MUNICIPIO DO CABO DE SANTO
-3010027209,PROCON - PREF MUNI CAMPINAS
-3010043393,PREFEITURA MUNICIAL SALVADOR
-3010043543,MUNICIPIO DE JANDIRA
-3010012047,INST MUN PROT DEF CONSUMIDOR
-3010049416,MUNICPIO DE LAURO DE FREI
-3050000086,SECRETARIA DA FAZENDA DO CEARA
-3050000080,SECRETARIA DA FAZENDA DO DF
-3050000017,PREFEITURA DE GOIANIA
-3050000083,ESTADO DE GOIAS SEC DA ECONOMIA
-3050000086,SEFAZ CEARA
-3010043207,FUNDO MUNICIPAL DE SAUDE
-3010044959,MUNICIPIO MARINGA
-3010043162,AGENCIA DESTAK DE PUBLICIDADE
-3050000018,PREFEITURA CAMPO GRANDE
-3010055906,SANTANDER AUTO S.A.
-3010055481,JADY FERNANDES BRASILEIRO 4110
-3010055141,CURITIBA - SECRETARIA MUNICIPAL DO MEIO AMBIENTE
-3010055096,COORDENAÇÃO-GERAL DE ORÇAMENTO, FINANÇAS E CONTABILIDADE
-3010041743,MUNICIPIO DE UBERLANDIA
-3010054936,FUNDO ESPECIAL DO PODER JUDICIARIO DO ESTADO DE RORAIMA
-3050000155,COLEGIO NOTARIAL DO BRASIL SECAO DE SAO PAULO
-3050000077,ESTADO DO PARANÁ
-3010012044,CONSELHO FFEDERAL MEDICINA RJ
-3010041355,CAIXA ESPECIAL SUCUMBENCIA
-3050000062,MUNICIPIO DE BALNEARIO CAMBORIU
-3010012320,MUNICIPIO DE CONTAGEM
-3010043434,MUNICIPIO DE SANTA CRUZ DO SUL
-3010024818,PREFEITURA FERRAZ DE VASCONCELOS
-3050000159,MUNICIPIO DE CAMPO LARGO
-3050000160,CONSELHO REGIONAL DE ENGENHARIA E AGRONOMIA DO ESTADO DE RONDONIA
-3010053714,CARTORIO DO 5 OFICIO DE JUSTICA DA COMARCA DE SAO GONCALO
-3050000089,GOVERNO DO ESTADO DE PERNAMBUCO
-3010053919,4º SERVICO DE REGISTRO DE IMOVEIS DA CAPITAL
-3010042769,PREFEITURA FOZ IGUAÇU
-3010051221,FECON
-3010043107,MUNICIPIO DE AMERICANA
-3010053749,FUNDO MUNICIPAL PROTEÇÃO E DEFESA DO CONSUMIDOR
-3010035659,PREFEITURA MACEIO
-3010043589,PREJEITURA ARACAJU
-3010016266,"CONSELHO FEDERAL DE FARMÁCIA - CRF-PR"
-3010043162,Destak Publicidade
-3010054209,"FUNDO REGIONAL DE PROTECAO E DEFESA DO CONSUMIDOR-FRPDC"
-3010054210,SECRETARIA DE ESTADO DO AMBIENTE E SUSTENTABILIDADE
-3010054432,ASSOCIACAO DOS PROCURADORES E ADVOGADOS DO MUNICIPIO DE DIADEMA
-3050000049,MUNICIPIO DE DIADEMA
-3010017744,FGTS
-3010042591,MUNICIPIO ITAJAÍ
-3010054705,FUNDO AMBIENTAL
-3010054933,5 OFICIAL DE REGISTRO DE IMOVEIS DA CAPITAL
-3010041986,TRIBUNAL DE JUSTICA PERNAMBUCO
-3050000094,TRIBUNAL DE JUSTICA PARAÍBA
-3050000111,SEFAZ SP`;
+            const predefinedSupplierList = `3010010117,AMERICAN CHAMBER;3010012976,BANCO DO BRASIL S.A;3010015717,CAIXA ECONOMICA;3010016266,CONSELHO REGIONAL DE FARMACIA;3010012045,CONSELHO REGIONAL DE MEDICINA VETERINARIA;3070000164,BANCO DE BRASILIA;3050000121,TJ PR - PARANA;3050000083,ESTADO DE GOIÁS;3050000081,ESTADO DO RIO GRANDE DO SUL;3010012036,FUNJECC CAMPO GRANDE;3050000076,GOVERNO DO ESTADO DO RIO DE JANEIRO;3010012197,IBAMA;3010016730,INMETRO;3050000084,ESTADO DO MUNICIPIO DE MATO GROSSO DO SUL;3010028766,ESTADO DO CEARÁ;3050000030,MUNICIPIO DE BELFORD ROXO;3050000023,MUNICIPIO DE JUIZ DE FORA;3050000033,MUNICÍPIO DE GUARUJÁ;3010016308,MUNICIPIO DE SÃO PAULO;3050000039,MUNICIPIO DE PRAIA GRANDE;3050000002,MUNICIPIO DE RIBEIRÃO PRETO;3050000035,MUNICIPIO DE TAUBATÉ;3050000011,MUNICIPIO DE SOROCABA;3050000139,MUNICIPIO JABOATAO DOS GUARARAPES;3050000073,PREFEITURA DE CANOAS;3050000050,PREFEITURA BELO HORIZONTE;3050000016,PREFEITURA DE ANAPOLIS;3050000015,PREFEITURA DE APARECIDA DE GO;3050000057,prefeitura de campinas;3010027337,PREFEITURA DE SÃO VICENTE;3050000034,PREFEITURA DE LIMEIRA;3050000028,PREFEITURA DE NOVA IGUAÇU;3050000040,PREFEITURA DE PIRACICABA;3050000068,PREFEITURA DE PORTO ALEGRE;3050000075,PREFEITURA DE RECIFE;3050000006,PREFEITURA DE SAO BERNARDO DO CAMPO;3050000058,PREFEITURA DE SANTOS;3010016265,PREFEITURA DO RIO DE JANEIRO;3050000032,PREFEITURA INDAIATUBA;3010011977,PREFEITURA JOÃO PESSOA;3010009076,PREFEITURA MUNICIPAL DE GUARULHOS;3050000005,PREFEITURA SÃO JOSÉ DO RIO PRETO;3010027253,PREFEITURA SÃO JOSÉ DOS CAMPOS;3050000047,PREFEITURA MUNICIPAL DE GRAVATAÍ;3050000020,PREFEITURA DE FORTALEZA;3010020477,PREFEITURA MUNICIPAL DE VITORIA DA CONQUISTA;3050000071,PREFEITURA MUNICIPAL DE CABEDELO;3050000059,PREFEITURA DO MUNICIPIO DE SAO CAETANO DO SUL;3010027209,PROCON CAMPINAS;3010012146,PROCON SP;3010012047,PROCON MUNICIPAL DE NATAL;3010012256,PROCURADORIA DO RJ;3010012288,REGRISTRADORES.ORG;3050000106,SECRETARIA DA RECEITA FEDERAL;3050000079,SECRETARIA DO ESTADO DA FAZENDA;3050000082,SECRETARIA DO ESTADO DA FAZENDA;3010012273,SUPREMO TRIBUNAL FEDERAL;3010012010,TJ AMAZONAS;3050000122,TJ CEARA;3050000104,TJ DISTRITO FEDERAL;3050000103,TJ ESPIRITO SANTO;3010021082,TJ GOIAS;3050000100,TJ MINAS GERAIS;3010012008,TJ MS;3050000094,TJ PARAIBA;3010021234,TJ PERNAMBUCO;3050000102,TJ RIO DE JANEIRO;3010012110,TJ RIO GRANDE DO NORTE;3010011934,TJ SANTA CATARINA;3050000101,TJ SÃO PAULO;3010030378,TJ BAHIA;3010038603,TJ MARANHAO;3010023489,TJ PARA;3010012041,CONSELHO REGIONAL DE MEDICINA VETERINARIA - GO;3010012050,AGENCIA NACIONAL DE VIGILANCIA SANITARIA;3010019896,FUNDO S MUNICIPAL DE CAMPIINAS;3010012036,FUNDO ESPECIAL PARA INSTA;3010012073,JUNTA COMERCIAL DO ESTADO NO PARANÁ;3050000119,SUPERIOR TRIBUNAL DE JUSTIÇA;3050000019,PREFEITURA MANAUS;3010018843,SECRETARIA DO ESTADO DA FAZENDA DE MINAS GERAIS;3010021234,Tribunal de Justiça de Pernambuco;3010042592,SERGIPE JUSTICA ESTADUAL;3050000116,Bahia;3010050178,FUNDO ESTADUAL DE PROTECAO E DEFESA DO C;3010027209,PROCON-MUNICIAL CAMPINAS;3010008367,PREFEITURA MUNICIPAL DE VITORIA;3050000088,ESTADO DA PARAIBA;3010049991,PROCON BA SJDH;3010043339,PREFEITURA MUNICIPAL FEIRA DE SANTANA;3050000152,OPERADOR NACIONAL;3010045642,FUNDO ESPECIAL DE MODERNI <TJ ALAG;3010045413,PREFEITURA MUNICIAL DE CHAPECO;3010042394,AGENCIA NACIONAL DE SAÚDE;3010016303,JUNTA COMERCIAL DO ESTADO RIO GRANDE DO NORTE;3050000060,PREFEITURA DE LONDRINA;3010039992,ESTADO DO MARANHAO;3050000008,MUNICIPIO SAO GONÇALO;3010011487,CEEE;3010043657,ASSOCIAÇÃO DOS PROCURADOS ESTADO DE ALAGOAS;3010051148,PROCON FUNDO DIFUS;3050000043,MUNICIPIO DE BARUERI;3050000048,MUNICIPIO DE CAXIAS DO SUL;3010012205,PROCON JOAO PESSOA;3010019793,GOVERNO DO ESTADO DE ALAGOAS;3010043683,BANCO DO ESTADO DE SERGIPE;3010050191,ALPHA DEPOSITO DE MERCADORIA;3010043494,FUNDO DEFESA DOS DIREITOS;3010012146,PROCON;3010042544,CREA-RS;3010016266,CONSELHO FEDERAL FARMACIA;3010016282,MUNICIPIO DO CABO DE SANTO;3010027209,PROCON - PREF MUNI CAMPINAS;3010043393,PREFEITURA MUNICIAL SALVADOR;3010043543,MUNICIPIO DE JANDIRA;3010012047,INST MUN PROT DEF CONSUMIDOR;3010049416,MUNICPIO DE LAURO DE FREI;3050000086,SECRETARIA DA FAZENDA DO CEARA;3050000080,SECRETARIA DA FAZENDA DO DF;3050000017,PREFEITURA DE GOIANIA;3050000083,ESTADO DE GOIAS SEC DA ECONOMIA;3050000086,SEFAZ CEARA;3010043207,FUNDO MUNICIPAL DE SAUDE;3010044959,MUNICIPIO MARINGA;3010043162,AGENCIA DESTAK DE PUBLICIDADE;3050000018,PREFEITURA CAMPO GRANDE;3010055906,SANTANDER AUTO S.A.;3010055481,JADY FERNANDES BRASILEIRO 4110;3010055141,CURITIBA - SECRETARIA MUNICIPAL DO MEIO AMBIENTE;3010055096,COORDENAÇÃO-GERAL DE ORÇAMENTO, FINANÇAS E CONTABILIDADE;3010041743,MUNICIPIO DE UBERLANDIA;3010054936,FUNDO ESPECIAL DO PODER JUDICIARIO DO ESTADO DE RORAIMA;3050000155,COLEGIO NOTARIAL DO BRASIL SECAO DE SAO PAULO;3050000077,ESTADO DO PARANÁ;3010012044,CONSELHO FFEDERAL MEDICINA RJ;3010041355,CAIXA ESPECIAL SUCUMBENCIA;3050000062,MUNICIPIO DE BALNEARIO CAMBORIU;3010012320,MUNICIPIO DE CONTAGEM;3010043434,MUNICIPIO DE SANTA CRUZ DO SUL;3010024818,PREFEITURA FERRAZ DE VASCONCELOS;3050000159,MUNICIPIO DE CAMPO LARGO;3050000160,CONSELHO REGIONAL DE ENGENHARIA E AGRONOMIA DO ESTADO DE RONDONIA;3010053714,CARTORIO DO 5 OFICIO DE JUSTICA DA COMARCA DE SAO GONCALO;3050000089,GOVERNO DO ESTADO DE PERNAMBUCO;3010053919,4º SERVICO DE REGISTRO DE IMOVEIS DA CAPITAL;3010042769,PREFEITURA FOZ IGUAÇU;3010051221,FECON;3010043107,MUNICIPIO DE AMERICANA;3010053749,FUNDO MUNICIPAL PROTEÇÃO E DEFESA DO CONSUMIDOR;3010035659,PREFEITURA MACEIO;3010043589,PREJEITURA ARACAJU;3010016266,"CONSELHO FEDERAL DE FARMÁCIA - CRF-PR";3010043162,Destak Publicidade;3010054209,"FUNDO REGIONAL DE PROTECAO E DEFESA DO CONSUMIDOR-FRPDC";3010054210,SECRETARIA DE ESTADO DO AMBIENTE E SUSTENTABILIDADE;3010054432,ASSOCIACAO DOS PROCURADORES E ADVOGADOS DO MUNICIPIO DE DIADEMA;3050000049,MUNICIPIO DE DIADEMA;3010017744,FGTS;3010042591,MUNICIPIO ITAJAÍ;3010054705,FUNDO AMBIENTAL;3010054933,5 OFICIAL DE REGISTRO DE IMOVEIS DA CAPITAL;3010041986,TRIBUNAL DE JUSTICA PERNAMBUCO;3050000094,TRIBUNAL DE JUSTICA PARAÍBA;3050000108,SECRETARIA DO TESOURO NACIONAL;3050000111,SEFAZ SP`;
             
-            const prompt = `
-                Sua tarefa é analisar a imagem de uma guia de pagamento e extrair informações com MÁXIMA precisão.
-
-                A seguir, uma lista de possíveis fornecedores no formato "NÚMERO,NOME":
-                ---
-                ${predefinedSupplierList}
-                ---
-
-                Siga estes passos:
-                1.  **Extraia a Linha Digitável Completa:** Localize o código de barras e extraia a sequência completa, incluindo todos os espaços, pontos e traços, exatamente como está na imagem.
-                2.  **Extraia a Data de Vencimento:** Localize a data e formate-a como DD/MM/AAAA.
-                3.  **Extraia o Valor do Documento:** Encontre o valor total a ser pago (geralmente rotulado como 'Valor Documento' ou 'Valor Cobrado') e retorne como uma string.
-                4.  **Identifique o Fornecedor:** Analise a guia em busca de um nome ou número que corresponda a um dos fornecedores na lista.
-                5.  **Formate a Resposta:** Retorne um objeto JSON com as chaves "vencimento", "codigo_barras", "valor", e "fornecedor". O valor de "fornecedor" DEVE SER UM OBJETO contendo as chaves "numero" e "nome". Se nenhum fornecedor for encontrado, retorne null para o objeto "fornecedor".
-
-                Exemplo de resposta JSON:
-                {
-                  "vencimento": "29/08/2025",
-                  "codigo_barras": "00190.00009 02941.037273 00012.758173 1 1880001096110",
-                  "valor": "10.961,10",
-                  "fornecedor": {
-                      "numero": "3010016730",
-                      "nome": "INMETRO"
-                  }
-                }
-            `;
+            const prompt = `Sua tarefa é analisar a imagem de uma guia de pagamento e extrair informações com MÁXIMA precisão. A seguir, uma lista de possíveis fornecedores no formato "NÚMERO,NOME":\n---\n${predefinedSupplierList}\n---\nSiga estes passos:\n1. **Extraia a Linha Digitável Completa:** Localize o código de barras e extraia a sequência completa, incluindo todos os espaços, pontos e traços, exatamente como está na imagem.\n2. **Extraia a Data de Vencimento:** Localize a data e formate-a como DD/MM/AAAA.\n3. **Extraia o Valor do Documento:** Encontre o valor total a ser pago e retorne como uma string.\n4. **Identifique o Fornecedor:** Analise a guia em busca de um nome ou número que corresponda a um dos fornecedores na lista.\n5. **Extraia o Nome do Pagador:** Encontre o nome do pagador no documento. Geralmente está associado a um CNPJ ou ao campo 'Pagador'.\n6. **Formate a Resposta:** Retorne um objeto JSON com as chaves "vencimento", "codigo_barras", "valor", "fornecedor" e "nome_pagador". O valor de "fornecedor" DEVE SER UM OBJETO contendo as chaves "numero" e "nome". Se nenhum fornecedor for encontrado, retorne null para o objeto "fornecedor". Se o nome do pagador não for encontrado, retorne null para "nome_pagador".\n\nExemplo de resposta JSON:\n{\n  "vencimento": "29/08/2025",\n  "codigo_barras": "00190.00009 02941.037273 00012.758173 1 1880001096110",\n  "valor": "10.961,10",\n  "fornecedor": {\n    "numero": "3010016730",\n    "nome": "INMETRO"\n  },\n  "nome_pagador": "CARREFOUR COMERCIO E INDUSTRIA LTDA"\n}`;
+            
             const payload = {
-                contents: [{ parts: [ { text: prompt }, { inlineData: { mimeType: validatorFileMimeType, data: validatorBase64Image } } ] }],
+                contents: [{ parts: [ { text: prompt }, { inlineData: { mimeType: validatorState.fileMimeType, data: validatorState.base64Image } } ] }],
                 generationConfig: { responseMimeType: "application/json" }
             };
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
@@ -1287,26 +914,23 @@
                     const textResponse = result.candidates[0].content.parts[0].text;
                     const cleanTextResponse = textResponse.replace(/^```json\s*|```\s*$/g, '');
                     const parsedJson = JSON.parse(cleanTextResponse);
-                    const dueDate = parsedJson.vencimento;
-                    const rawBarcode = parsedJson.codigo_barras;
-                    const paymentValue = parsedJson.valor;
-                    const supplierObject = parsedJson.fornecedor;
-                    const supplierName = supplierObject ? supplierObject.nome : null;
-                    const supplierNumber = supplierObject ? supplierObject.numero : null;
-                    const cleanedBarcode = rawBarcode ? rawBarcode.replace(/\D/g, '') : null;
+                    
+                    const cleanedBarcode = parsedJson.codigo_barras ? parsedJson.codigo_barras.replace(/\D/g, '') : null;
                     let validationMessage = null;
                     if (cleanedBarcode && !(cleanedBarcode.length === 47 || cleanedBarcode.length === 48)) {
                         validationMessage = `Atenção: O código possui ${cleanedBarcode.length} dígitos. O padrão é 47 (boletos) ou 48 (tributos).`;
                     }
+                    
                     let dueDateStatus = null;
-                    if (dueDate && /^\d{2}\/\d{2}\/\d{4}$/.test(dueDate)) {
-                        const parts = dueDate.split('/');
+                    if (parsedJson.vencimento && /^\d{2}\/\d{2}\/\d{4}$/.test(parsedJson.vencimento)) {
+                        const parts = parsedJson.vencimento.split('/');
                         const dueDateObject = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
                         const today = new Date();
                         today.setHours(0, 0, 0, 0);
                         const threeDaysFromNow = new Date();
                         threeDaysFromNow.setHours(0, 0, 0, 0);
                         threeDaysFromNow.setDate(today.getDate() + 3);
+                        
                         if (dueDateObject < today) {
                             dueDateStatus = { text: "GUIA VENCIDA", icon: "😢", classes: "inline-flex items-center px-3 py-1.5 rounded-full text-sm font-bold shadow-md bg-red-500 text-white" };
                         } else if (dueDateObject <= threeDaysFromNow) {
@@ -1317,16 +941,24 @@
                             dueDateStatus = { text: "PAGAMENTO EM DIA", icon: "😊", classes: "inline-flex items-center px-3 py-1.5 rounded-full text-sm font-bold shadow-md bg-green-500 text-white" };
                         }
                     }
-                    if (dueDate || cleanedBarcode) {
-                        validatorShowResults(dueDate, rawBarcode, cleanedBarcode, supplierName, supplierNumber, paymentValue, validationMessage, dueDateStatus);
-                    } else {
-                        validatorShowError('Não foi possível extrair os dados. Tente um documento com melhor qualidade.');
-                    }
+
+                    validatorShowResults({
+                        dueDate: parsedJson.vencimento,
+                        rawBarcode: parsedJson.codigo_barras,
+                        cleanedBarcode: cleanedBarcode,
+                        supplierName: parsedJson.fornecedor ? parsedJson.fornecedor.nome : null,
+                        supplierNumber: parsedJson.fornecedor ? parsedJson.fornecedor.numero : null,
+                        payerName: parsedJson.nome_pagador, // NOVO
+                        paymentValue: parsedJson.valor,
+                        validationMsg: validationMessage,
+                        dueDateStatus: dueDateStatus
+                    });
                 } else {
-                    if (result.candidates && result.candidates[0].finishReason === 'SAFETY') {
+                    const reason = result.candidates?.[0]?.finishReason;
+                    if (reason === 'SAFETY') {
                         validatorShowError('A análise foi bloqueada por segurança. A imagem pode conter informações sensíveis.');
                     } else {
-                        validatorShowError('A resposta da IA não continha os dados esperados.');
+                        validatorShowError('A resposta da IA não continha os dados esperados. Verifique a qualidade da imagem.');
                     }
                 }
             } catch (error) {
@@ -1335,14 +967,195 @@
             } finally {
                 validatorHideLoader();
             }
-        });
+        }
 
-        // Garante que a primeira aba esteja ativa ao carregar a página
+        // --- Lógica para as abas legadas (OCR, Barcode, Join PDF) ---
+        // (O código para as outras abas permanece o mesmo)
+        const ocrPasteArea = document.getElementById('ocrPasteArea');
+        const ocrLoading = document.getElementById('ocrLoading');
+        const ocrLoadingText = document.getElementById('ocrLoadingText');
+        const ocrContentArea = document.getElementById('ocrContentArea');
+        const previewImage = document.getElementById('previewImage');
+        const ocrTextResult = document.getElementById('ocrTextResult');
+        const ocrFileInput = document.getElementById('ocrFileInput');
+        const copyOcrBtn = document.getElementById('copyOcrBtn');
+        const ocrProcessBtn = document.getElementById('ocrProcessBtn');
+        let currentImageFile = null;
+        let ocrWorker = null;
+
+        function setupOcrEventListeners() {
+            if(!ocrPasteArea) return;
+            ocrPasteArea.addEventListener('paste', handleOcrPaste);
+            ocrPasteArea.addEventListener('dragover', (e) => { e.preventDefault(); ocrPasteArea.classList.add('dragover'); });
+            ocrPasteArea.addEventListener('dragleave', (e) => { e.preventDefault(); ocrPasteArea.classList.remove('dragover'); });
+            ocrPasteArea.addEventListener('drop', handleOcrDrop);
+            ocrFileInput.addEventListener('change', (e) => processOcrImage(e.target.files[0]));
+        }
+
+        function handleOcrPaste(e) { e.preventDefault(); const items = e.clipboardData.items; for (let i = 0; i < items.length; i++) { if (items[i].type.indexOf('image') !== -1) { processOcrImage(items[i].getAsFile()); break; } } }
+        function handleOcrDrop(e) { e.preventDefault(); ocrPasteArea.classList.remove('dragover'); const files = e.dataTransfer.files; if (files.length > 0 && files[0].type.startsWith('image/')) { processOcrImage(files[0]); } }
+        
+        function processOcrImage(file) { 
+            if (!file) return;
+            if (file.size > 5 * 1024 * 1024) { ocrTextResult.innerHTML = '<div class="error-state">⚠️ Arquivo muito grande! Máximo 5MB.</div>'; return; } 
+            const reader = new FileReader(); 
+            reader.onload = function(e) { 
+                previewImage.src = e.target.result; 
+                currentImageFile = file; 
+                ocrContentArea.style.display = 'grid'; 
+                ocrTextResult.innerHTML = '<div class="empty-state">Clique em "Extrair Texto" para processar 👆</div>'; 
+                copyOcrBtn.disabled = true; 
+                ocrProcessBtn.disabled = false; 
+            }; 
+            reader.readAsDataURL(file); 
+        }
+        
+        async function performOCR() {
+            if (!currentImageFile) return;
+            showOcrLoading('Iniciando processo OCR...');
+            try {
+                if (!ocrWorker) {
+                    ocrWorker = await Tesseract.createWorker({
+                        logger: m => {
+                            const statusText = m.status === 'recognizing text' ? `Extraindo texto... ${Math.round(m.progress * 100)}%` : 'Carregando engine OCR...';
+                            ocrLoadingText.textContent = statusText;
+                        }
+                    });
+                }
+                await ocrWorker.loadLanguage('eng');
+                await ocrWorker.initialize('eng');
+                await ocrWorker.setParameters({ tessedit_char_whitelist: '0123456789' });
+                const { data: { text } } = await ocrWorker.recognize(currentImageFile);
+                const cleanText = text.replace(/[^0-9]/g, '');
+                ocrTextResult.innerHTML = `<div class="success-state">✅ Texto extraído!</div>${cleanText}<div class="character-count-info">Caracteres: ${cleanText.length}</div>`;
+                copyOcrBtn.disabled = false;
+            } catch (error) {
+                console.error('Erro no OCR:', error);
+                ocrTextResult.innerHTML = `<div class="error-state">❌ Erro no processamento OCR</div>`;
+            } finally {
+                hideOcrLoading();
+            }
+        }
+
+        function showOcrLoading(message) { ocrLoading.style.display = 'block'; ocrLoadingText.textContent = message; ocrProcessBtn.disabled = true; }
+        function hideOcrLoading() { ocrLoading.style.display = 'none'; ocrProcessBtn.disabled = false; }
+        function copyOcrText() { const text = document.getElementById('ocrTextResult').innerText.replace(/✅.*\n/, '').replace(/Caracteres: \d+/, '').trim(); if (text) { fallbackCopyTextToClipboard(text, copyOcrBtn); } }
+        
+        // Barcode Cleaner
+        const barcodeInput = document.getElementById('barcodeInput');
+        const cleanBarcodeBtn = document.getElementById('cleanBarcodeBtn');
+        const cleanedBarcodeResult = document.getElementById('cleanedBarcodeResult');
+        const copyBarcodeBtn = document.getElementById('copyBarcodeBtn');
+
+        function setupBarcodeCleanerEventListeners() {
+            if (!barcodeInput) return;
+            barcodeInput.addEventListener('input', () => {
+                const hasText = barcodeInput.value.trim().length > 0;
+                cleanBarcodeBtn.disabled = !hasText;
+                copyBarcodeBtn.disabled = true; 
+                if (!hasText) {
+                    cleanedBarcodeResult.innerHTML = '<div class="empty-state">O código de barras limpo aparecerá aqui.</div>';
+                }
+            });
+            cleanBarcodeBtn.disabled = true; 
+            copyBarcodeBtn.disabled = true;
+        }
+
+        function cleanBarcode() {
+            const cleaned = barcodeInput.value.replace(/\D/g, '');
+            if (cleaned.length > 0) {
+                cleanedBarcodeResult.innerHTML = `<div class="success-state">✅ Código limpo!</div>${cleaned}<div class="character-count-info">Caracteres: ${cleaned.length}</div>`;
+                copyBarcodeBtn.disabled = false;
+            } else {
+                cleanedBarcodeResult.innerHTML = '<div class="empty-state">O código de barras limpo aparecerá aqui.</div>';
+                copyBarcodeBtn.disabled = true;
+            }
+        }
+        function copyBarcode() { const cleaned = barcodeInput.value.replace(/\D/g, ''); if (cleaned) { fallbackCopyTextToClipboard(cleaned, copyBarcodeBtn); } }
+
+        // PDF Joiner
+        const pdfElements = {
+            fileInput: document.getElementById('pdfFileInput'),
+            fileList: document.getElementById('pdfFileList'),
+            processBtn: document.getElementById('joinPdfProcessBtn'),
+            loading: document.getElementById('pdfLoading'),
+            outputArea: document.getElementById('pdfOutputArea'),
+            mergedResult: document.getElementById('mergedPdfResult'),
+            downloadBtn: document.getElementById('downloadPdfBtn'),
+            dropArea: document.getElementById('pdfDropArea'),
+        };
+        let selectedPdfFiles = [];
+        let mergedPdfBytes = null;
+
+        function setupPdfJoinerEventListeners() {
+            if (!pdfElements.dropArea) return;
+            pdfElements.dropArea.addEventListener('dragover', (e) => { e.preventDefault(); e.stopPropagation(); pdfElements.dropArea.classList.add('dragover'); });
+            pdfElements.dropArea.addEventListener('dragleave', (e) => { e.preventDefault(); e.stopPropagation(); pdfElements.dropArea.classList.remove('dragover'); });
+            pdfElements.dropArea.addEventListener('drop', (e) => { e.preventDefault(); e.stopPropagation(); pdfElements.dropArea.classList.remove('dragover'); const files = Array.from(e.dataTransfer.files).filter(f => f.type === 'application/pdf'); addPdfFilesToList(files); });
+            pdfElements.fileInput.addEventListener('change', (e) => addPdfFilesToList(Array.from(e.target.files)));
+            pdfElements.downloadBtn.addEventListener('click', downloadMergedPdf);
+        }
+
+        function addPdfFilesToList(files) { files.forEach(file => { if (!selectedPdfFiles.some(f => f.name === file.name && f.size === file.size)) { selectedPdfFiles.push(file); } }); renderPdfFileList(); updateJoinPdfButtonState(); }
+        function removePdfFile(fileName) { selectedPdfFiles = selectedPdfFiles.filter(file => file.name !== fileName); renderPdfFileList(); updateJoinPdfButtonState(); }
+        function renderPdfFileList() { pdfElements.fileList.innerHTML = ''; selectedPdfFiles.forEach(file => { const li = document.createElement('li'); li.textContent = file.name; const btn = document.createElement('button'); btn.textContent = '×'; btn.className = 'remove-file-btn'; btn.onclick = () => removePdfFile(file.name); li.appendChild(btn); pdfElements.fileList.appendChild(li); }); }
+        function updateJoinPdfButtonState() { pdfElements.processBtn.disabled = selectedPdfFiles.length < 2; if (selectedPdfFiles.length === 0) { pdfElements.outputArea.style.display = 'none'; pdfElements.downloadBtn.disabled = true; } }
+        
+        async function joinPdfs() { 
+            if (selectedPdfFiles.length < 2) return; 
+            pdfElements.loading.style.display = 'block'; 
+            pdfElements.processBtn.disabled = true; 
+            try { 
+                const { PDFDocument } = PDFLib; 
+                const mergedPdf = await PDFDocument.create(); 
+                for (const file of selectedPdfFiles) { 
+                    const arrayBuffer = await file.arrayBuffer(); 
+                    const pdfDoc = await PDFDocument.load(arrayBuffer, { ignoreEncryption: true }); 
+                    const copiedPages = await mergedPdf.copyPages(pdfDoc, pdfDoc.getPageIndices()); 
+                    copiedPages.forEach(page => mergedPdf.addPage(page)); 
+                } 
+                mergedPdfBytes = await mergedPdf.save(); 
+                pdfElements.outputArea.style.display = 'flex'; 
+                pdfElements.mergedResult.innerHTML = `<div class="success-state">✅ PDFs unidos! Total de páginas: ${mergedPdf.getPageCount()}</div>`; 
+                pdfElements.downloadBtn.disabled = false; 
+            } catch (error) { 
+                console.error(error); 
+                pdfElements.mergedResult.innerHTML = `<div class="error-state">❌ Erro ao juntar PDFs. Verifique se não estão protegidos.</div>`; 
+            } finally { 
+                pdfElements.loading.style.display = 'none'; 
+                pdfElements.processBtn.disabled = false; 
+            } 
+        }
+        function downloadMergedPdf() { if (mergedPdfBytes) { const blob = new Blob([mergedPdfBytes], { type: 'application/pdf' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'pdfs_juntos_carrefour.pdf'; a.click(); URL.revokeObjectURL(url); } }
+        
+        function fallbackCopyTextToClipboard(text, buttonElement) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                const originalText = buttonElement.textContent;
+                buttonElement.textContent = `✅ Copiado!`;
+                buttonElement.style.background = 'linear-gradient(45deg, #4CAF50, #2E7D32)';
+                setTimeout(() => {
+                    buttonElement.textContent = originalText;
+                    buttonElement.style.background = 'linear-gradient(45deg, #ED1C24, #C00000)';
+                }, 2000);
+            } catch (err) {
+                console.error('Falha ao copiar');
+            }
+            document.body.removeChild(textArea);
+        }
+
+        // --- Inicialização da Página ---
         document.addEventListener('DOMContentLoaded', () => {
             openTab('validatorTab');
-            if(document.getElementById('joinPdfTab')) {
-                updateJoinPdfButtonState();
-            }
+            setupValidatorEventListeners();
+            setupOcrEventListeners();
+            setupBarcodeCleanerEventListeners();
+            setupPdfJoinerEventListeners();
+            updateJoinPdfButtonState();
         });
     </script>
 </body>
